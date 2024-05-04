@@ -170,7 +170,7 @@ Isso também vale para as demais rotas.
 
 ```bash
 [GET]     /services      (Listar os serviços)
-[GET]     /services?page=1&limit_per_page=10
+[GET]     /services?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=BRAMS
 [POST]    /services      (Cadastrar um novo serviço)
 [GET]     /services/:id  (Obter dados de um serviço pelo ID)
 [PUT]     /services/:id  (Alterar dados de um serviço pelo ID)
