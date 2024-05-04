@@ -11,14 +11,25 @@ const schema = {
 module.exports.checkAddUser = async (req, res, next) => {
 	console.log(`Middleware (checkAddUser)`);
 
-	if (!(await schema.name.isValid(req.body.name))) {
-		return res.status(400).json({ error: "Nome é necessário." });
+	const { name, email, password } = req.body;
+	let fields = [];
+
+	// Check fields
+	if (name === undefined || !(await schema.name.isValid(name))) {
+		fields.push("name");
 	}
-	if (!(await schema.email.isValid(req.body.email))) {
-		return res.status(400).json({ error: "E-mail é necessário e precisa ser válido." });
+	if (email === undefined || !(await schema.email.isValid(email))) {
+		fields.push("email");
 	}
-	if (!(await schema.password.isValid(req.body.password))) {
-		return res.status(400).json({ error: "Senha é necessário e precisa ter de 6 a 30 caracteres." });
+	if (password === undefined || !(await schema.password.isValid(password))) {
+		fields.push("password");
+	}
+
+	if (fields.length > 0) {
+		return res.status(400).json({
+			error: "Um ou mais dados são inválidos.",
+			invalid_fields: fields,
+		});
 	}
 
 	return next();
@@ -27,22 +38,30 @@ module.exports.checkAddUser = async (req, res, next) => {
 module.exports.checkUpdateUser = async (req, res, next) => {
 	console.log(`Middleware (checkUpdateUser)`);
 
-	console.log(req.body);
+	const { name, email, password } = req.body;
+	let fields = [];
 
-	if (req.body.name !== undefined) {
-		if (!(await schema.name.isValid(req.body.name))) {
-			return res.status(400).json({ error: "Nome é necessário." });
-		}
+	// Required fields
+	if (name === undefined && email === undefined && password === undefined) {
+		return res.status(400).json({ error: "Nenhum dado requerido foi enviado." });
 	}
-	if (req.body.email !== undefined) {
-		if (!(await schema.email.isValid(req.body.email))) {
-			return res.status(400).json({ error: "E-mail é necessário e precisa ser válido." });
-		}
+
+	// Check fields
+	if (name !== undefined && !(await schema.name.isValid(name))) {
+		fields.push("name");
 	}
-	if (req.body.password !== undefined) {
-		if (!(await schema.password.isValid(req.body.password))) {
-			return res.status(400).json({ error: "Senha é necessário e precisa ter de 6 a 30 caracteres." });
-		}
+	if (email !== undefined && !(await schema.email.isValid(email))) {
+		fields.push("email");
+	}
+	if (password !== undefined && !(await schema.password.isValid(password))) {
+		fields.push("password");
+	}
+
+	if (fields.length > 0) {
+		return res.status(400).json({
+			error: "Um ou mais dados são inválidos.",
+			invalid_fields: fields,
+		});
 	}
 
 	return next();

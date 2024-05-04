@@ -22,9 +22,6 @@ module.exports.getUsers = async (req, res) => {
 
 	const offset = (page - 1) * limit_per_page;
 
-	console.log("page", page);
-	console.log("limit_per_page", limit_per_page);
-
 	await Users.findAll({
 		offset: offset,
 		limit: limit_per_page,
@@ -34,8 +31,8 @@ module.exports.getUsers = async (req, res) => {
 			res.status(200).json({
 				page: page,
 				limit_per_page: limit_per_page,
-				count_pages: Math.ceil(data.length / limit_per_page),
-				count_items: data.length,
+				total_pages: Math.ceil(data.length / limit_per_page),
+				total_items: data.length,
 				data: data,
 			});
 		})
@@ -154,7 +151,7 @@ module.exports.updateUser = async (req, res) => {
 			...userData,
 		})
 		.then((data) => {
-			res.status(201).json({
+			res.status(200).json({
 				id: data.id,
 				name: data.name,
 				email: data.email,
@@ -167,6 +164,7 @@ module.exports.updateUser = async (req, res) => {
 		});
 };
 
+// [DELETE] /users/:id
 module.exports.deleteUser = async (req, res) => {
 	console.log(`Url requisitada (deleteUser): ${req.url}`);
 

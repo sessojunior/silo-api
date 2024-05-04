@@ -118,11 +118,12 @@ _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquiv
 
 ```bash
 > npx sequelize-cli model:generate --name Users --attributes name:string,email:string,password_hash:string
+> npx sequelize-cli model:generate --name Services --attributes name:string
 ```
 
 _Observação:_ Insira vírgulas sem espaços.
 
-4 - Executar as migrations para aplicar as alterações:
+4 - Executar as migrations para aplicar as alterações, toda vez que um model do Sequelize acima:
 
 ```bash
 > npx sequelize-cli db:migrate
@@ -132,6 +133,8 @@ _Observação:_ Insira vírgulas sem espaços.
 
 As rotas estão divididas da seguinte forma:
 
+**Usuários: /users**
+
 ```bash
 [GET]     /users      (Listar os usuários)
 [GET]     /users?page=1&limit_per_page=10
@@ -139,6 +142,51 @@ As rotas estão divididas da seguinte forma:
 [GET]     /users/:id  (Obter dados de um usuário pelo ID)
 [PUT]     /users/:id  (Alterar dados de um usuário pelo ID)
 [DELETE]  /users/:id  (Apagar um usuário pelo ID)
+```
+
+Para cadastrar um novo usuário é necessário enviar por _body_:
+
+```bash
+{
+  "name": "Mario",
+  "email": "mario@test.com",
+  "password": "123456"
+}
+```
+
+É feito uma validação para cada coluna utilizando middlewares:
+
+```bash
+const schema = {
+  name: yup.string().trim().required(),
+  email: yup.string().trim().email().required(),
+  password: yup.string().min(6).max(30).required(),
+};
+```
+
+Isso também vale para as demais rotas.
+
+**Serviços: /services**
+
+```bash
+[GET]     /services      (Listar os serviços)
+[GET]     /services?page=1&limit_per_page=10
+[POST]    /services      (Cadastrar um novo serviço)
+[GET]     /services/:id  (Obter dados de um serviço pelo ID)
+[PUT]     /services/:id  (Alterar dados de um serviço pelo ID)
+[DELETE]  /services/:id  (Apagar um serviço pelo ID)
+```
+
+```bash
+{
+  "name": "BAM"
+}
+```
+
+```bash
+const schema = {
+  name: yup.string().trim().required(),
+};
 ```
 
 Estou utilizando o _Insomnia_ para testar as rotas, mas utilize o _Postman_ se você quiser.
