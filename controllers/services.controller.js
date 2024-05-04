@@ -22,6 +22,8 @@ module.exports.getServices = async (req, res) => {
 
 	const offset = (page - 1) * limit_per_page;
 
+	const total_items = await Users.count();
+
 	await Services.findAll({
 		offset: offset,
 		limit: limit_per_page,
@@ -31,8 +33,8 @@ module.exports.getServices = async (req, res) => {
 			res.status(200).json({
 				page: page,
 				limit_per_page: limit_per_page,
-				total_pages: Math.ceil(data.length / limit_per_page),
-				total_items: data.length,
+				total_pages: Math.ceil(total_items / limit_per_page),
+				total_items: total_items,
 				data: data,
 			});
 		})
