@@ -2,6 +2,13 @@
 
 O **Silo** é um aplicativo para fornecer informações mais rápido e eficiente dos processos e atividades realizadas no supercomputador, monitoradas pelo **Grupo de Produtos e Processos (PP)** do **CPTEC/INPE**.
 
+A API será desenvolvida para dar suporte ao front-end do projeto.
+
+![Login](./assets/img/frontend-1.png)
+![Dashboard](./assets/img/frontend-2.png)
+![Modal 1](./assets/img/frontend-3.png)
+![Modal 2](./assets/img/frontend-4.png)
+
 ## Instalação
 
 1 - Instalar todas as dependências de uma só vez:
@@ -75,6 +82,12 @@ O arquivo _index.js_ contém os scripts para inicializar o servidor.
 
 ## Configuração do banco de dados
 
+O Diagrama de Entidade Relacionamento (DER) a seguir descreve as entidades e relacionamentos do projeto.
+
+![Diagrama de Entidade Relacionamento](./assets/img/der.png)
+
+_Observação:_ O diagrama acima foi construído rapidamente usando o [brModelo](https://www.brmodeloweb.com/), ferramenta para modelagem de dados online e gratuita.
+
 Sequelize CLI:
 
 1 - Inicializar o sequelize, criando o arquivo _./config/config.json_ na raíz do projeto:
@@ -128,4 +141,4 @@ As rotas estão divididas da seguinte forma:
 [DELETE]  /users/:id  (Apagar um usuário pelo ID)
 ```
 
-Estou utilizando o Insomnia para testar as rotas, mas utilize o Postman se você quiser.
+Estou utilizando o _Insomnia_ para testar as rotas, mas utilize o _Postman_ se você quiser.
