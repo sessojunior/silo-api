@@ -6,26 +6,35 @@ O **Silo** é um aplicativo para fornecer informações mais rápido e eficiente
 
 1 - Instalar todas as dependências de uma só vez:
 
+```bash
 > npm install
+```
 
 2 - Ou instalar as dependências isoladamente:
 
+```bash
 > npm install express --save
-> npm install sequelize sqlite3 --save
-> npm install dotenv --save
+> npm install cors --save
 > npm install body-parser --save
+> npm install dotenv --save
+> npm install sequelize sqlite3 --save
+```
 
 E também as dependências de desenvolvimento:
 
+```bash
 > npm install sequelize-cli --save-dev
 > npm install nodemon --save-dev
+```
 
 ## Variáveis de ambiente
 
 Foi criado manualmente o arquivo _.env_ no root do projeto, e configurado as variáveis de ambiente:
 
-> NODE_ENV=development
-> PORT=3030
+```bash
+NODE_ENV=development
+PORT=3030
+```
 
 Ao alterar o ambiente para produção deve usar _NODE_ENV=production_. Os valores possíveis são: development, test ou production, conforme o arquivo _./config/config.json_ criado pelo sequelize.
 
@@ -33,17 +42,18 @@ Ao alterar o ambiente para produção deve usar _NODE_ENV=production_. Os valore
 
 O projeto está dividido em diretórios e arquivos com responsabilidades diferentes.
 
+```bash
 silo-api/
 ├─ .git
 ├─ config/
-│ └─ config.json
+│  └─ config.json
 ├─ controllers/
-│ └─ users.controller.js
+│  └─ users.controller.js
 ├─ database/
-│ ├─ mer.png
-│ └─ silo.sqlite
+│  ├─ mer.png
+│  └─ silo.sqlite
 ├─ middlewares/
-│ └─ users.middlewares.js
+│  └─ users.middlewares.js
 ├─ migrations/
 ├─ models/
 ├─ node_modules/
@@ -55,6 +65,9 @@ silo-api/
 ├─ package.json
 ├─ README.md
 └─ routes.js
+```
+
+A estrutura abaixo pode ser obtida inserindo o comando _tree_ no terminal do Windows.
 
 1 - _index.js_
 
@@ -66,28 +79,53 @@ Sequelize CLI:
 
 1 - Inicializar o sequelize, criando o arquivo _./config/config.json_ na raíz do projeto:
 
+```bash
 > npx sequelize-cli init
+```
 
 Em _./config/config.json_ alterar o development para:
 
-> "development": {
-> "database": "silo_development",
-> "storage": "./database/silo.sqlite",
-> "dialect": "sqlite"
-> },
+```bash
+"development": {
+  "database": "silo_development",
+  "storage": "./database/silo.sqlite",
+  "dialect": "sqlite"
+},
+```
 
 2 - Criar o banco de dados:
 
+```bash
 > npx sequelize-cli db:create
+```
 
 _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquivo _./database/silo.sqlite_ manualmente através do comando _touch silo.sqlite_ ou em novo arquivo no VSCode.
 
 3 - Criar as entidades do banco de dados:
 
+```bash
 > npx sequelize-cli model:generate --name Users --attributes name:string,email:string,password_hash:string
+```
 
 _Observação:_ Insira vírgulas sem espaços.
 
 4 - Executar as migrations para aplicar as alterações:
 
+```bash
 > npx sequelize-cli db:migrate
+```
+
+## Rotas
+
+As rotas estão divididas da seguinte forma:
+
+```bash
+[GET]     /users      (Listar os usuários)
+[GET]     /users?page=1&limit_per_page=10
+[POST]    /users      (Cadastrar um novo usuário)
+[GET]     /users/:id  (Obter dados de um usuário pelo ID)
+[PUT]     /users/:id  (Alterar dados de um usuário pelo ID)
+[DELETE]  /users/:id  (Apagar um usuário pelo ID)
+```
+
+Estou utilizando o Insomnia para testar as rotas, mas utilize o Postman se você quiser.

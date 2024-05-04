@@ -5,30 +5,42 @@ const Users = require("../models/users")(sequelize, Sequelize.DataTypes);
 const bcrypt = require("bcryptjs");
 
 // [GET] /users
-// req.query: /users?page=1&limit=10
+// req.query: /users?page=1&limit_per_page=10
 module.exports.getUsers = async (req, res) => {
 	console.log(`Url requisitada (getUsers): ${req.url}`);
 
-	const page = req.query.page || 1;
-	const limit = req.query.limit || 10;
+	let page = Math.abs(parseInt(req.query.page)) || 1;
+	let limit_per_page = Math.abs(parseInt(req.query.limit_per_page)) || 10;
 
-	const offset = (page - 1) * limit;
+	// Page: 1 - 10000
+	page = page <= 0 ? 1 : page;
+	page = page > 10000 ? 10000 : page;
+
+	// Limit per page: 1 - 1000
+	limit_per_page = limit_per_page <= 0 ? 1 : limit_per_page;
+	limit_per_page = limit_per_page > 1000 ? 1000 : limit_per_page;
+
+	const offset = (page - 1) * limit_per_page;
+
+	console.log("page", page);
+	console.log("limit_per_page", limit_per_page);
 
 	await Users.findAll({
 		offset: offset,
-		limit: limit,
+		limit: limit_per_page,
 		attributes: ["id", "name", "email", "createdAt", "updatedAt"],
 	})
 		.then((data) => {
 			res.status(200).json({
 				page: page,
-				count_pages: Math.ceil(data.length / limit),
+				limit_per_page: limit_per_page,
+				count_pages: Math.ceil(data.length / limit_per_page),
 				count_items: data.length,
 				data: data,
 			});
 		})
 		.catch((err) => {
-			res.status(500).json({ error: err });
+			res.status(400).json({ error: "Sem resultados" });
 		});
 };
 

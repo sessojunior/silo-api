@@ -1,10 +1,14 @@
 const express = require("express");
+const cors = require("cors");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const Sequelize = require("sequelize");
 
 // App
 const app = express();
+
+// CORS
+app.use(cors());
 
 // JSON, bodyParser
 app.use(bodyParser.json());
