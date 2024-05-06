@@ -21,8 +21,8 @@ app.use(
 // Bad request or Malformed JSON
 app.use((err, req, res, next) => {
 	if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
-		console.log("Erro de bad request ou JSON mal formado:", err.body);
-		return res.status(400).send({ error: err });
+		console.log("Erro de bad request ou JSON mal formado.");
+		return res.status(400).send({ error: "Erro de bad request ou JSON mal formado.", details: err });
 	}
 	next();
 });

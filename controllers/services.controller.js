@@ -117,7 +117,7 @@ module.exports.getService = async (req, res) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			res.status(400).json({ error: "Não existe um serviço com este ID." });
+			res.status(404).json({ error: "Não existe um serviço com este ID." });
 		});
 };
 
@@ -133,7 +133,7 @@ module.exports.updateService = async (req, res) => {
 
 	const service = await Services.findByPk(serviceId);
 	if (!service) {
-		return res.status(400).json({ error: "Não existe um serviço com este ID." });
+		return res.status(404).json({ error: "Não existe um serviço com este ID." });
 	}
 
 	let serviceData = {};
@@ -174,7 +174,7 @@ module.exports.deleteService = async (req, res) => {
 
 	const service = await Services.findByPk(serviceId);
 	if (!service) {
-		return res.status(400).json({ error: "Não existe um serviço com este ID." });
+		return res.status(404).json({ error: "Não existe um serviço com este ID." });
 	}
 
 	await service

@@ -165,11 +165,14 @@ Depois rodar o comando abaixo para atualizar:
 
 ```bash
       serviceId: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         references: {
           model: "Services",
           key: "id",
         },
+				onUpdate: "CASCADE",
+				onDelete: "CASCADE",
+      },
 ```
 
 Ficando assim, por exemplo no arquivo _20240506123928-create-tasks.js_:
@@ -187,11 +190,13 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       serviceId: {
-        type: Sequelize.UUID,
+        type: Sequelize.INTEGER,
         references: {
           model: "Services",
           key: "id",
         },
+				onUpdate: "CASCADE",
+				onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,

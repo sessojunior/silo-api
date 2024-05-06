@@ -5,7 +5,7 @@ const Services = require("../models/services")(sequelize, Sequelize.DataTypes);
 const Tasks = require("../models/tasks")(sequelize, Sequelize.DataTypes);
 
 // [GET] /tasks
-// req.query: /tasks?page=1&limit_per_page=10&order_by=id&order_sort=ASC&filter=Mario
+// req.query: /tasks?page=1&limit_per_page=10&order_by=id&order_sort=ASC&serviceId&filter=pos
 module.exports.getTasks = async (req, res) => {
 	console.log(`Url requisitada (getTasks): ${req.url}`);
 
@@ -31,8 +31,12 @@ module.exports.getTasks = async (req, res) => {
 	const offset = (page - 1) * limit_per_page;
 	const limit = limit_per_page;
 
-	// Foreign Key
+	// Foreign Key (req.query)
 	const serviceId = req.query.serviceId !== undefined && parseInt(req.query.serviceId) > 0 ? parseInt(req.query.serviceId) : 0;
+
+	if (serviceId > 0 && !(await Services.findOne({ where: { id: serviceId } }))) {
+		return res.status(400).json({ error: "Não existe um serviço com este ID." });
+	}
 
 	// Query
 	const filter = req.query.filter !== undefined && req.query.filter.trim().length > 0 ? req.query.filter.trim() : "";
@@ -103,18 +107,19 @@ module.exports.addTask = async (req, res) => {
 		return res.status(400).json({ error: "Já existe um tarefa com este nome." });
 	}
 
-	// Foreign Key
-	const serviceId = req.query.serviceId !== undefined && parseInt(req.query.serviceId) > 0 ? parseInt(req.query.serviceId) : 0;
+	// Foreign Key (req.body)
+	const serviceId = req.body.serviceId !== undefined && parseInt(req.body.serviceId) > 0 ? parseInt(req.body.serviceId) : 0;
 
-	if (serviceId > 0 && !(await Tasks.findOne({ where: { serviceId: serviceId } }))) {
+	if (serviceId > 0 && !(await Services.findOne({ where: { id: serviceId } }))) {
 		return res.status(400).json({ error: "Não existe um serviço com este ID." });
 	}
 
 	await Tasks.create({
-		name: name,
 		serviceId: serviceId,
+		name: name,
 	})
 		.then((data) => {
+			console.log("data", data.dataValues);
 			res.status(201).json({
 				id: data.id,
 				name: data.name,
@@ -146,7 +151,7 @@ module.exports.getTask = async (req, res) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			res.status(400).json({ error: "Não existe uma tarefa com este ID." });
+			res.status(404).json({ error: "Não existe uma tarefa com este ID." });
 		});
 };
 
@@ -160,17 +165,22 @@ module.exports.updateTask = async (req, res) => {
 	console.log(`Url requisitada (updateTask): ${req.url}`);
 
 	const taskId = parseInt(req.params.id);
-
-	const task = await Tasks.findByPk(taskId);
-	if (!task) {
-		return res.status(400).json({ error: "Não existe uma tarefa com este ID." });
-	}
+	const name = req.body.name.trim();
 
 	// Foreign Key
-	const serviceId = req.query.serviceId !== undefined && parseInt(req.query.serviceId) > 0 ? parseInt(req.query.serviceId) : 0;
+	const serviceId = req.body.serviceId !== undefined && parseInt(req.body.serviceId) > 0 ? parseInt(req.body.serviceId) : 0;
 
 	if (serviceId > 0 && !(await Tasks.findOne({ where: { serviceId: serviceId } }))) {
 		return res.status(400).json({ error: "Não existe um serviço com este ID." });
+	}
+
+	if (await Tasks.findOne({ where: [{ id: { [Op.ne]: taskId } }, { name: name }] })) {
+		return res.status(400).json({ error: "Já existe uma tarefa com este nome." });
+	}
+
+	const task = await Tasks.findByPk(taskId);
+	if (!task) {
+		return res.status(404).json({ error: "Não existe uma tarefa com este ID." });
 	}
 
 	let taskData = {};
@@ -220,7 +230,7 @@ module.exports.deleteTask = async (req, res) => {
 
 	const task = await Tasks.findByPk(taskId);
 	if (!task) {
-		return res.status(400).json({ error: "Não existe uma tarefa com este ID." });
+		return res.status(404).json({ error: "Não existe uma tarefa com este ID." });
 	}
 
 	await task

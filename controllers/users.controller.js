@@ -127,7 +127,7 @@ module.exports.getUser = async (req, res) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			res.status(400).json({ error: "Não existe um usuário com este ID." });
+			res.status(404).json({ error: "Não existe um usuário com este ID." });
 		});
 };
 
@@ -145,7 +145,7 @@ module.exports.updateUser = async (req, res) => {
 
 	const user = await Users.findByPk(userId);
 	if (!user) {
-		return res.status(400).json({ error: "Não existe um usuário com este ID." });
+		return res.status(404).json({ error: "Não existe um usuário com este ID." });
 	}
 
 	let userData = {};
@@ -203,7 +203,7 @@ module.exports.deleteUser = async (req, res) => {
 
 	const user = await Users.findByPk(userId);
 	if (!user) {
-		return res.status(400).json({ error: "Não existe um usuário com este ID." });
+		return res.status(404).json({ error: "Não existe um usuário com este ID." });
 	}
 
 	await user
