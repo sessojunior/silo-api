@@ -2,7 +2,6 @@ const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const { sequelize } = require("../config");
 const Services = require("../models/services")(sequelize, Sequelize.DataTypes);
-const bcrypt = require("bcryptjs");
 
 // [GET] /services
 // req.query: /services?page=1&limit_per_page=10&order_by=id&order_sort=ASC&filter=BRAMS

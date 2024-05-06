@@ -11,13 +11,13 @@ A API será desenvolvida para dar suporte ao front-end do projeto.
 
 ## Instalação
 
-1 - Instalar todas as dependências de uma só vez:
+**1 - Instalar todas as dependências de uma só vez:**
 
 ```bash
 > npm install
 ```
 
-2 - Ou instalar as dependências isoladamente:
+**2 - Ou instalar as dependências isoladamente:**
 
 ```bash
 > npm install express --save
@@ -76,7 +76,7 @@ silo-api/
 
 A estrutura abaixo pode ser obtida inserindo o comando _tree_ no terminal do Windows.
 
-1 - _index.js_
+**1 - _index.js_**
 
 O arquivo _index.js_ contém os scripts para inicializar o servidor.
 
@@ -88,9 +88,9 @@ O Diagrama de Entidade Relacionamento (DER) a seguir descreve as entidades e rel
 
 _Observação:_ O diagrama acima foi construído rapidamente usando o [brModelo](https://www.brmodeloweb.com/), ferramenta para modelagem de dados online e gratuita.
 
-Sequelize CLI:
+### Sequelize CLI:
 
-1 - Inicializar o sequelize, criando o arquivo _./config/config.json_ na raíz do projeto:
+**1 - Inicializar o sequelize, criando o arquivo _./config/config.json_ na raíz do projeto:**
 
 ```bash
 > npx sequelize-cli init
@@ -106,7 +106,7 @@ Em _./config/config.json_ alterar o development para:
 },
 ```
 
-2 - Criar o banco de dados:
+**2 - Criar o banco de dados:**
 
 ```bash
 > npx sequelize-cli db:create
@@ -114,20 +114,137 @@ Em _./config/config.json_ alterar o development para:
 
 _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquivo _./database/silo.sqlite_ manualmente através do comando _touch silo.sqlite_ ou em novo arquivo no VSCode.
 
-3 - Criar as entidades do banco de dados:
+**3 - Criar as entidades do banco de dados:**
 
 ```bash
 > npx sequelize-cli model:generate --name Users --attributes name:string,email:string,password_hash:string
 > npx sequelize-cli model:generate --name Services --attributes name:string
+> npx sequelize-cli model:generate --name Tasks --attributes serviceId:integer
 ```
 
 _Observação:_ Insira vírgulas sem espaços.
 
-4 - Executar as migrations para aplicar as alterações, toda vez que um model do Sequelize acima:
+**4 - Executar as migrations para aplicar as alterações, toda vez que um model do Sequelize acima:**
 
 ```bash
 > npx sequelize-cli db:migrate
 ```
+
+**5 - Alterações e modificações em tabelas**
+
+Para **alterar a coluna de uma tabela**, criar uma nova migration com o comando, por exemplo:
+
+```bash
+> npx sequelize-cli migration:create --name alter-users
+```
+
+Depois editar o arquivo criado com o migration. Por exemplo, para fazer com que o arquivo _20240506121018-alter-users.js_ (criado pelo comando acima) altere a coluna _password_hash_ para _passwordHash_ na tabela _Users_, editar o arquivo para deixá-lo da seguinte forma:
+
+```bash
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+     await queryInterface.renameColumn("Users", "password_hash", "passwordHash");
+  },
+
+  async down (queryInterface, Sequelize) {
+     await queryInterface.renameColumn("Users", "passwordHash", "password_hash");
+  }
+};
+```
+
+Depois rodar o comando abaixo para atualizar:
+
+```bash
+> npx sequelize-cli db:migrate
+```
+
+**6 - Para criar relacionamentos entre tabelas, editar por exemplo o arquivo criado com o comando _npx sequelize-cli model:generate ..._ e adicionar references. Por exemplo:**
+
+```bash
+      serviceId: {
+        type: Sequelize.UUID,
+        references: {
+          model: "Services",
+          key: "id",
+        },
+```
+
+Ficando assim, por exemplo no arquivo _20240506123928-create-tasks.js_:
+
+```bash
+'use strict';
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable("Tasks", {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      serviceId: {
+        type: Sequelize.UUID,
+        references: {
+          model: "Services",
+          key: "id",
+        },
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable("Tasks");
+  }
+};
+```
+
+Por fim rodar o comando abaixo para atualizar:
+
+```bash
+> npx sequelize-cli db:migrate
+```
+
+Para **criar uma nova coluna em uma tabela** após a tabela já ter sido criada, rodar por exemplo, o seguinte comando para criar uma nova _migration_:
+
+```bash
+> npx sequelize-cli migration:create --name alter-tasks
+```
+
+O arquivo de migração ficaria assim:
+
+```bash
+'use strict';
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.addColumn("Tasks", "name", {
+      type: Sequelize.STRING
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeColumn("Tasks", "name");
+  }
+};
+```
+
+E então, execute para aplicar as alterações no banco de dados:
+
+```bash
+> npx sequelize-cli db:migrate
+```
+
+Acesse o link da documentação oficial da [Query Interface](https://sequelize.org/docs/v7/other-topics/query-interface/) do Sequelize para mais informações.
 
 ## Rotas
 
@@ -137,7 +254,7 @@ As rotas estão divididas da seguinte forma:
 
 ```bash
 [GET]     /users      (Listar os usuários)
-[GET]     /users?page=1&limit_per_page=10
+[GET]     /users?page=1&limit_per_page=10&order_by=id&order_sort=ASC&filter=mario
 [POST]    /users      (Cadastrar um novo usuário)
 [GET]     /users/:id  (Obter dados de um usuário pelo ID)
 [PUT]     /users/:id  (Alterar dados de um usuário pelo ID)
@@ -154,7 +271,7 @@ Para cadastrar um novo usuário é necessário enviar por _body_:
 }
 ```
 
-É feito uma validação para cada coluna utilizando middlewares:
+É feito uma validação com o construtor de schemas [Yup](https://github.com/jquense/yup) para cada coluna utilizando middlewares:
 
 ```bash
 const schema = {
@@ -170,7 +287,7 @@ Isso também vale para as demais rotas.
 
 ```bash
 [GET]     /services      (Listar os serviços)
-[GET]     /services?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=BRAMS
+[GET]     /services?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=brams
 [POST]    /services      (Cadastrar um novo serviço)
 [GET]     /services/:id  (Obter dados de um serviço pelo ID)
 [PUT]     /services/:id  (Alterar dados de um serviço pelo ID)
@@ -189,4 +306,17 @@ const schema = {
 };
 ```
 
-Estou utilizando o _Insomnia_ para testar as rotas, mas utilize o _Postman_ se você quiser.
+**Tarefas: /tasks**
+
+```bash
+[GET]     /tasks      (Listar as tarefas)
+[GET]     /tasks?page=1&limit_per_page=30&order_by=id&order_sort=ASC&serviceId=1&filter=pos
+[POST]    /tasks      (Cadastrar uma nova tarefa)
+[GET]     /tasks/:id  (Obter dados de uma tarefa pelo ID)
+[PUT]     /tasks/:id  (Alterar dados de uma tarefa pelo ID)
+[DELETE]  /tasks/:id  (Apagar uma tarefa pelo ID)
+```
+
+Todas as rotas devem ser adicionadas no arquivo _./routes.js_.
+
+Estou utilizando o [Insomnia](https://insomnia.rest/download) para testar as rotas, mas utilize o [Postman](https://www.postman.com/downloads/) se você quiser.

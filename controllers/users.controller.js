@@ -84,7 +84,7 @@ module.exports.addUser = async (req, res) => {
 	const name = req.body.name.trim();
 	const email = req.body.email.trim().toLowerCase();
 	const password = req.body.password;
-	const password_hash = await bcrypt.hash(password, 8);
+	const passwordHash = await bcrypt.hash(password, 8);
 
 	if (await Users.findOne({ where: { email: email } })) {
 		return res.status(400).json({ error: "Já existe um usuário com este e-mail." });
@@ -93,7 +93,7 @@ module.exports.addUser = async (req, res) => {
 	await Users.create({
 		name: name,
 		email: email,
-		password_hash: password_hash,
+		passwordHash: passwordHash,
 	})
 		.then((data) => {
 			res.status(201).json({
@@ -151,9 +151,10 @@ module.exports.updateUser = async (req, res) => {
 	let userData = {};
 
 	if (req.body.name !== undefined) {
+		const name = req.body.name.trim();
 		userData = {
 			...userData,
-			name: req.body.name.trim(),
+			name: name,
 		};
 	}
 
@@ -169,10 +170,10 @@ module.exports.updateUser = async (req, res) => {
 	}
 
 	if (req.body.password !== undefined) {
-		const password_hash = await bcrypt.hash(req.body.password, 8);
+		const passwordHash = await bcrypt.hash(req.body.password, 8);
 		userData = {
 			...userData,
-			password_hash: password_hash,
+			passwordHash: passwordHash,
 		};
 	}
 
