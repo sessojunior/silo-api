@@ -51,19 +51,16 @@ module.exports.getServices = async (req, res) => {
 		order: [[order_by, order_sort]],
 	})
 		.then((data) => {
-			if (data.length === 0) {
-				res.status(400).json({ error: "Sem resultados." });
-			} else {
-				res.status(200).json({
-					page: page,
-					limit_per_page: limit_per_page,
-					total_pages: Math.ceil(total_items / limit_per_page),
-					total_items: total_items,
-					order_by: order_by,
-					order_sort: order_sort,
-					data: data,
-				});
-			}
+			res.status(200).json({
+				page: page,
+				limit_per_page: limit_per_page,
+				total_pages: Math.ceil(total_items / limit_per_page),
+				total_items: total_items,
+				order_by: order_by,
+				order_sort: order_sort,
+				filter: filter,
+				data: data,
+			});
 		})
 		.catch((err) => {
 			res.status(400).json({ error: err });

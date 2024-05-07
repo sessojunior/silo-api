@@ -7,7 +7,7 @@ const schema = {
 	password: yup.string().min(6).max(30).required(),
 };
 
-// Add User
+// Add
 module.exports.checkAddUser = async (req, res, next) => {
 	console.log(`Middleware (checkAddUser)`);
 
@@ -35,6 +35,7 @@ module.exports.checkAddUser = async (req, res, next) => {
 	return next();
 };
 
+// Update
 module.exports.checkUpdateUser = async (req, res, next) => {
 	console.log(`Middleware (checkUpdateUser)`);
 

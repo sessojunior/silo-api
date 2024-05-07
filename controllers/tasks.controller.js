@@ -5,7 +5,7 @@ const Services = require("../models/services")(sequelize, Sequelize.DataTypes);
 const Tasks = require("../models/tasks")(sequelize, Sequelize.DataTypes);
 
 // [GET] /tasks
-// req.query: /tasks?page=1&limit_per_page=10&order_by=id&order_sort=ASC&serviceId&filter=pos
+// req.query: /tasks?page=1&limit_per_page=10&order_by=id&order_sort=ASC&serviceId=1&filter=pos
 module.exports.getTasks = async (req, res) => {
 	console.log(`Url requisitada (getTasks): ${req.url}`);
 
@@ -22,7 +22,7 @@ module.exports.getTasks = async (req, res) => {
 	limit_per_page = limit_per_page > 1000 ? 1000 : limit_per_page;
 
 	// Columns
-	const columns = ["id", "name", "serviceId", "createdAt", "updatedAt"];
+	const columns = ["id", "serviceId", "name", "description", "createdAt", "updatedAt"];
 
 	// Order by
 	const order_by = req.query.order_by !== undefined && columns.includes(req.query.order_by) ? req.query.order_by : "id";
@@ -73,19 +73,17 @@ module.exports.getTasks = async (req, res) => {
 		order: [[order_by, order_sort]],
 	})
 		.then((data) => {
-			if (data.length === 0) {
-				res.status(400).json({ error: "Sem resultados." });
-			} else {
-				res.status(200).json({
-					page: page,
-					limit_per_page: limit_per_page,
-					total_pages: Math.ceil(total_items / limit_per_page),
-					total_items: total_items,
-					order_by: order_by,
-					order_sort: order_sort,
-					data: data,
-				});
-			}
+			res.status(200).json({
+				page: page,
+				limit_per_page: limit_per_page,
+				total_pages: Math.ceil(total_items / limit_per_page),
+				total_items: total_items,
+				order_by: order_by,
+				order_sort: order_sort,
+				filter: filter,
+				serviceId: serviceId,
+				data: data,
+			});
 		})
 		.catch((err) => {
 			res.status(400).json({ error: err });
@@ -95,13 +93,15 @@ module.exports.getTasks = async (req, res) => {
 // [POST] /tasks
 // req.body:
 // {
-// 	 "name": "pos",
 // 	 "serviceId": 1,
+// 	 "name": "pos",
+// 	 "description": "Pós da tarefa"
 // }
 module.exports.addTask = async (req, res) => {
 	console.log(`Url requisitada (addTask): ${req.url}`);
 
 	const name = req.body.name.trim();
+	const description = req.body.description.trim();
 
 	if (await Tasks.findOne({ where: { name: name } })) {
 		return res.status(400).json({ error: "Já existe um tarefa com este nome." });
@@ -117,13 +117,14 @@ module.exports.addTask = async (req, res) => {
 	await Tasks.create({
 		serviceId: serviceId,
 		name: name,
+		description: description,
 	})
 		.then((data) => {
-			console.log("data", data.dataValues);
 			res.status(201).json({
 				id: data.id,
-				name: data.name,
 				serviceId: data.serviceId,
+				name: data.name,
+				description: data.description,
 				createdAt: data.createdAt,
 				updatedAt: data.updatedAt,
 			});
@@ -143,8 +144,9 @@ module.exports.getTask = async (req, res) => {
 		.then((data) => {
 			res.status(200).json({
 				id: data.id,
-				name: data.name,
 				serviceId: data.serviceId,
+				name: data.name,
+				description: data.description,
 				createdAt: data.createdAt,
 				updatedAt: data.updatedAt,
 			});
@@ -158,8 +160,9 @@ module.exports.getTask = async (req, res) => {
 // [PUT] /tasks/:id
 // req.body:
 // {
-// 	 "name": "runPos",
 // 	 "serviceId": 2,
+// 	 "name": "runPos",
+// 	 "description": "Rodando o pós da tarefa"
 // }
 module.exports.updateTask = async (req, res) => {
 	console.log(`Url requisitada (updateTask): ${req.url}`);
@@ -193,6 +196,14 @@ module.exports.updateTask = async (req, res) => {
 		};
 	}
 
+	if (req.body.description !== undefined) {
+		const description = req.body.description.trim();
+		taskData = {
+			...taskData,
+			description: description,
+		};
+	}
+
 	if (serviceId) {
 		const name = req.body.name.trim();
 		taskData = {
@@ -212,6 +223,7 @@ module.exports.updateTask = async (req, res) => {
 			res.status(200).json({
 				id: data.id,
 				name: data.name,
+				description: data.description,
 				serviceId: data.serviceId,
 				createdAt: data.createdAt,
 				updatedAt: data.updatedAt,

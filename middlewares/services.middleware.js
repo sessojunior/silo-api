@@ -5,7 +5,7 @@ const schema = {
 	name: yup.string().trim().required(),
 };
 
-// Add User
+// Add
 module.exports.checkAddService = async (req, res, next) => {
 	console.log(`Middleware (checkAddService)`);
 
@@ -27,6 +27,7 @@ module.exports.checkAddService = async (req, res, next) => {
 	return next();
 };
 
+// Update
 module.exports.checkUpdateService = async (req, res, next) => {
 	console.log(`Middleware (checkUpdateService)`);
 

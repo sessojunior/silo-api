@@ -2,23 +2,27 @@ const yup = require("yup");
 
 // Schema
 const schema = {
-	name: yup.string().trim().required(),
 	serviceId: yup.number().min(1),
+	name: yup.string().trim().required(),
+	description: yup.string().trim().required(),
 };
 
-// Add Task
+// Add
 module.exports.checkAddTask = async (req, res, next) => {
 	console.log(`Middleware (checkAddTask)`);
 
-	const { name, serviceId } = req.body;
+	const { serviceId, name, description } = req.body;
 	let fields = [];
 
 	// Check fields
+	if (serviceId === undefined || !(await schema.serviceId.isValid(serviceId))) {
+		fields.push("serviceId");
+	}
 	if (name === undefined || !(await schema.name.isValid(name))) {
 		fields.push("name");
 	}
-	if (serviceId === undefined || !(await schema.serviceId.isValid(serviceId))) {
-		fields.push("serviceId");
+	if (description === undefined || !(await schema.description.isValid(name))) {
+		fields.push("description");
 	}
 
 	if (fields.length > 0) {
@@ -31,23 +35,27 @@ module.exports.checkAddTask = async (req, res, next) => {
 	return next();
 };
 
+// Update
 module.exports.checkUpdateTask = async (req, res, next) => {
 	console.log(`Middleware (checkUpdateTask)`);
 
-	const { name, serviceId } = req.body;
+	const { serviceId, name, description } = req.body;
 	let fields = [];
 
 	// Required fields
-	if (name === undefined) {
+	if (serviceId === undefined && name === undefined) {
 		return res.status(400).json({ error: "Nenhum dado requerido foi enviado." });
 	}
 
 	// Check fields
+	if (serviceId !== undefined && !(await schema.serviceId.isValid(serviceId))) {
+		fields.push("serviceId");
+	}
 	if (name !== undefined && !(await schema.name.isValid(name))) {
 		fields.push("name");
 	}
-	if (serviceId !== undefined && !(await schema.serviceId.isValid(serviceId))) {
-		fields.push("serviceId");
+	if (description !== undefined && !(await schema.name.isValid(description))) {
+		fields.push("description");
 	}
 
 	if (fields.length > 0) {

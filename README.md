@@ -55,14 +55,22 @@ silo-api/
 ├─ config/
 │  └─ config.json
 ├─ controllers/
+│  ├─ services.controller.js
+│  ├─ tasks.controller.js
 │  └─ users.controller.js
 ├─ database/
 │  ├─ mer.png
 │  └─ silo.sqlite
 ├─ middlewares/
+│  ├─ services.middlewares.js
+│  ├─ tasks.middlewares.js
 │  └─ users.middlewares.js
 ├─ migrations/
 ├─ models/
+│  ├─ index.js
+│  ├─ services.js
+│  ├─ tasks.js
+│  └─ users.js
 ├─ node_modules/
 ├─ seeders/
 ├─ .env
@@ -117,9 +125,10 @@ _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquiv
 **3 - Criar as entidades do banco de dados:**
 
 ```bash
-> npx sequelize-cli model:generate --name Users --attributes name:string,email:string,password_hash:string
+> npx sequelize-cli model:generate --name Users --attributes name:string,email:string,passwordHash:string
 > npx sequelize-cli model:generate --name Services --attributes name:string
-> npx sequelize-cli model:generate --name Tasks --attributes serviceId:integer
+> npx sequelize-cli model:generate --name Tasks --attributes serviceId:integer,name:string,description:string
+> npx sequelize-cli model:generate --name Problems --attributes taskId:integer,title:string,description:string
 ```
 
 _Observação:_ Insira vírgulas sem espaços.
@@ -132,13 +141,13 @@ _Observação:_ Insira vírgulas sem espaços.
 
 **5 - Alterações e modificações em tabelas**
 
-Para **alterar a coluna de uma tabela**, criar uma nova migration com o comando, por exemplo:
+Se no futuro quiser **alterar a coluna de uma tabela**, criar uma nova migration com o comando, por exemplo:
 
 ```bash
 > npx sequelize-cli migration:create --name alter-users
 ```
 
-Depois editar o arquivo criado com o migration. Por exemplo, para fazer com que o arquivo _20240506121018-alter-users.js_ (criado pelo comando acima) altere a coluna _password_hash_ para _passwordHash_ na tabela _Users_, editar o arquivo para deixá-lo da seguinte forma:
+Depois editar o arquivo criado com o migration. Por exemplo, para fazer com que o arquivo _20240506121018-alter-users.js_ (criado pelo comando acima) altere a coluna _passwordHash_ para _password_hash_ na tabela _Users_, editar o arquivo para deixá-lo da seguinte forma:
 
 ```bash
 'use strict';
@@ -146,11 +155,11 @@ Depois editar o arquivo criado com o migration. Por exemplo, para fazer com que 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-     await queryInterface.renameColumn("Users", "password_hash", "passwordHash");
+     await queryInterface.renameColumn("Users", "passwordHash", "password_hash");
   },
 
   async down (queryInterface, Sequelize) {
-     await queryInterface.renameColumn("Users", "passwordHash", "password_hash");
+     await queryInterface.renameColumn("Users", "password_hash", "passwordHash");
   }
 };
 ```
@@ -320,6 +329,17 @@ const schema = {
 [GET]     /tasks/:id  (Obter dados de uma tarefa pelo ID)
 [PUT]     /tasks/:id  (Alterar dados de uma tarefa pelo ID)
 [DELETE]  /tasks/:id  (Apagar uma tarefa pelo ID)
+```
+
+**Informações: /problems**
+
+```bash
+[GET]     /problems
+[GET]     /problems?page=1&limit_per_page=30&order_by=id&order_sort=ASC&taskId=1&filter=
+[POST]    /problems      (Cadastrar um novo problema)
+[GET]     /problems/:id  (Obter dados de um problema pelo ID)
+[PUT]     /problems/:id  (Alterar dados de um problema pelo ID)
+[DELETE]  /problems/:id  (Apagar um problema pelo ID)
 ```
 
 Todas as rotas devem ser adicionadas no arquivo _./routes.js_.
