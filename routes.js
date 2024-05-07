@@ -8,6 +8,7 @@ const { getTasks, addTask, getTask, updateTask, deleteTask } = require("./contro
 const { getProblems, addProblem, getProblem, updateProblem, deleteProblem } = require("./controllers/problems.controller");
 const { getProblemCategories, addProblemCategory, getProblemCategory, updateProblemCategory, deleteProblemCategory } = require("./controllers/problemcategories.controller");
 const { getSolutions, addSolution, getSolution, updateSolution, deleteSolution } = require("./controllers/solutions.controller");
+const { getProblemVsSolution, addProblemVsSolution, deleteProblemVsSolution } = require("./controllers/problemsvssolutions.controller");
 
 // Middlewares
 const { checkAddUser, checkUpdateUser } = require("./middlewares/users.middleware");
@@ -58,6 +59,11 @@ router.post("/solutions", checkDataSolution, addSolution);
 router.get("/solutions/:id", getSolution);
 router.put("/solutions/:id", checkDataSolution, updateSolution);
 router.delete("/solutions/:id", deleteSolution);
+
+// Routes: /problemsvssolutions
+router.post("/problemsvssolutions", addProblemVsSolution);
+router.get("/problemsvssolutions", getProblemVsSolution);
+router.delete("/problemsvssolutions", deleteProblemVsSolution);
 
 // Routes: 404 (Not Found)
 router.all("*", (req, res) => {
