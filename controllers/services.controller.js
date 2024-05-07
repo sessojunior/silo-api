@@ -127,28 +127,21 @@ module.exports.updateService = async (req, res) => {
 	console.log(`Url requisitada (updateService): ${req.url}`);
 
 	const serviceId = parseInt(req.params.id);
+	const name = req.body.name.trim();
 
 	const service = await Services.findByPk(serviceId);
 	if (!service) {
 		return res.status(404).json({ error: "Não existe um serviço com este ID." });
 	}
 
-	let serviceData = {};
-
-	if (req.body.name !== undefined) {
-		const name = req.body.name.trim();
-		serviceData = {
-			...serviceData,
-			name: name,
-		};
-		if (await Services.findOne({ where: [{ id: { [Op.ne]: serviceId } }, { name: name }] })) {
-			return res.status(400).json({ error: "Já existe um serviço com este nome." });
-		}
+	if (await Services.findOne({ where: [{ id: { [Op.ne]: serviceId } }, { name: name }] })) {
+		return res.status(400).json({ error: "Já existe um serviço com este nome." });
 	}
 
 	await service
 		.update({
-			...serviceData,
+			serviceId: serviceId,
+			name: name,
 		})
 		.then((data) => {
 			res.status(200).json({

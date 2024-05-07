@@ -59,7 +59,6 @@ module.exports.getUsers = async (req, res) => {
 				total_items: total_items,
 				order_by: order_by,
 				order_sort: order_sort,
-				filter: filter,
 				data: data,
 			});
 		})
@@ -139,32 +138,22 @@ module.exports.updateUser = async (req, res) => {
 	console.log(`Url requisitada (updateUser): ${req.url}`);
 
 	const userId = parseInt(req.params.id);
+	const name = req.body.name.trim();
+	const email = req.body.email.trim().toLowerCase();
 
 	const user = await Users.findByPk(userId);
 	if (!user) {
 		return res.status(404).json({ error: "Não existe um usuário com este ID." });
 	}
 
-	let userData = {};
-
-	if (req.body.name !== undefined) {
-		const name = req.body.name.trim();
-		userData = {
-			...userData,
-			name: name,
-		};
+	if (await Users.findOne({ where: [{ id: { [Op.ne]: userId } }, { email: email }] })) {
+		return res.status(400).json({ error: "Já existe um usuário com este e-mail." });
 	}
 
-	if (req.body.email !== undefined) {
-		const email = req.body.email.trim().toLowerCase();
-		userData = {
-			...userData,
-			email: email,
-		};
-		if (await Users.findOne({ where: [{ id: { [Op.ne]: userId } }, { email: email }] })) {
-			return res.status(400).json({ error: "Já existe um usuário com este e-mail." });
-		}
-	}
+	let userData = {
+		name: name,
+		email: email,
+	};
 
 	if (req.body.password !== undefined) {
 		const passwordHash = await bcrypt.hash(req.body.password, 8);

@@ -5,7 +5,7 @@ const schema = {
 	name: yup.string().trim().required(),
 };
 
-module.exports.checkService = async (req, res, next) => {
+module.exports.checkDataService = async (req, res, next) => {
 	console.log(`Middleware (checkService)`);
 
 	const { name } = req.body;

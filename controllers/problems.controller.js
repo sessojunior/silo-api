@@ -160,13 +160,20 @@ module.exports.getProblem = async (req, res) => {
 // req.body:
 // {
 // 	 "taskId": 2,
-// 	 "description": "Disco cheio"
+// 	 "title": "Disco cheio"
+// 	 "description": "Volume do disco está cheio"
 // }
 module.exports.updateProblem = async (req, res) => {
 	console.log(`Url requisitada (updateProblem): ${req.url}`);
 
 	const problemId = parseInt(req.params.id);
 	const title = req.body.title.trim();
+	const description = req.body.description.trim();
+
+	const problem = await Problems.findByPk(problemId);
+	if (!problem) {
+		return res.status(404).json({ error: "Não existe um problema com este ID." });
+	}
 
 	// Foreign Key
 	const taskId = req.body.taskId !== undefined && parseInt(req.body.taskId) > 0 ? parseInt(req.body.taskId) : 0;
@@ -179,43 +186,11 @@ module.exports.updateProblem = async (req, res) => {
 		return res.status(400).json({ error: "Já existe um problema com este título." });
 	}
 
-	const problem = await Problems.findByPk(problemId);
-	if (!problem) {
-		return res.status(404).json({ error: "Não existe um problema com este ID." });
-	}
-
-	let problemData = {};
-
-	if (req.body.title !== undefined) {
-		const title = req.body.title.trim();
-		taskData = {
-			...taskData,
-			title: title,
-		};
-	}
-
-	if (req.body.description !== undefined) {
-		const description = req.body.description.trim();
-		taskData = {
-			...taskData,
-			description: description,
-		};
-	}
-
-	if (taskId) {
-		const title = req.body.title.trim();
-		problemData = {
-			...problemData,
-			taskId: taskId,
-		};
-		if (await Problems.findOne({ where: [{ id: { [Op.ne]: problemId } }, { title: title }] })) {
-			return res.status(400).json({ error: "Já existe um problema com este título." });
-		}
-	}
-
 	await problem
 		.update({
-			...problemData,
+			taskId: taskId,
+			title: title,
+			description: description,
 		})
 		.then((data) => {
 			res.status(200).json({

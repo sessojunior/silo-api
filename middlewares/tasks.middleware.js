@@ -8,7 +8,7 @@ const schema = {
 };
 
 // Add
-module.exports.checkTask = async (req, res, next) => {
+module.exports.checkDataTask = async (req, res, next) => {
 	console.log(`Middleware (checkTask)`);
 
 	const { serviceId, name, description } = req.body;

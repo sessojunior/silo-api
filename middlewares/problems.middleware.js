@@ -7,7 +7,7 @@ const schema = {
 	description: yup.string().trim().required(),
 };
 
-module.exports.checkProblem = async (req, res, next) => {
+module.exports.checkDataProblem = async (req, res, next) => {
 	console.log(`Middleware (checkProblem)`);
 
 	const { taskId, title, description } = req.body;

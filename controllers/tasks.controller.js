@@ -169,6 +169,12 @@ module.exports.updateTask = async (req, res) => {
 
 	const taskId = parseInt(req.params.id);
 	const name = req.body.name.trim();
+	const description = req.body.description.trim();
+
+	const task = await Tasks.findByPk(taskId);
+	if (!task) {
+		return res.status(404).json({ error: "Não existe uma tarefa com este ID." });
+	}
 
 	// Foreign Key
 	const serviceId = req.body.serviceId !== undefined && parseInt(req.body.serviceId) > 0 ? parseInt(req.body.serviceId) : 0;
@@ -181,43 +187,11 @@ module.exports.updateTask = async (req, res) => {
 		return res.status(400).json({ error: "Já existe uma tarefa com este nome." });
 	}
 
-	const task = await Tasks.findByPk(taskId);
-	if (!task) {
-		return res.status(404).json({ error: "Não existe uma tarefa com este ID." });
-	}
-
-	let taskData = {};
-
-	if (req.body.name !== undefined) {
-		const name = req.body.name.trim();
-		taskData = {
-			...taskData,
-			name: name,
-		};
-	}
-
-	if (req.body.description !== undefined) {
-		const description = req.body.description.trim();
-		taskData = {
-			...taskData,
-			description: description,
-		};
-	}
-
-	if (serviceId) {
-		const name = req.body.name.trim();
-		taskData = {
-			...taskData,
-			serviceId: serviceId,
-		};
-		if (await Tasks.findOne({ where: [{ id: { [Op.ne]: taskId } }, { name: name }] })) {
-			return res.status(400).json({ error: "Já existe uma tarefa com este nome." });
-		}
-	}
-
 	await task
 		.update({
-			...taskData,
+			serviceId: serviceId,
+			name: name,
+			description: description,
 		})
 		.then((data) => {
 			res.status(200).json({
