@@ -9,7 +9,7 @@ const schema = {
 
 // Add
 module.exports.checkDataTask = async (req, res, next) => {
-	console.log(`Middleware (checkTask)`);
+	console.log(`Middleware (checkDataTask)`);
 
 	const { serviceId, name, description } = req.body;
 	let fields = [];

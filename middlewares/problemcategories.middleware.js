@@ -5,8 +5,8 @@ const schema = {
 	name: yup.string().trim().required(),
 };
 
-module.exports.checkDataService = async (req, res, next) => {
-	console.log(`Middleware (checkDataService)`);
+module.exports.checkDataProblemCategory = async (req, res, next) => {
+	console.log(`Middleware (checkDataProblemCategory)`);
 
 	const { name } = req.body;
 	let fields = [];

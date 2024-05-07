@@ -8,7 +8,7 @@ const schema = {
 };
 
 module.exports.checkDataProblem = async (req, res, next) => {
-	console.log(`Middleware (checkProblem)`);
+	console.log(`Middleware (checkDataProblem)`);
 
 	const { taskId, title, description } = req.body;
 	let fields = [];
