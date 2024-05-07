@@ -167,7 +167,6 @@ module.exports.updateProblem = async (req, res) => {
 
 	const problemId = parseInt(req.params.id);
 	const title = req.body.title.trim();
-	const description = req.body.description.trim();
 
 	// Foreign Key
 	const taskId = req.body.taskId !== undefined && parseInt(req.body.taskId) > 0 ? parseInt(req.body.taskId) : 0;

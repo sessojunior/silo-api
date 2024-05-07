@@ -55,6 +55,7 @@ silo-api/
 ├─ config/
 │  └─ config.json
 ├─ controllers/
+│  ├─ problems.controller.js
 │  ├─ services.controller.js
 │  ├─ tasks.controller.js
 │  └─ users.controller.js
@@ -62,6 +63,7 @@ silo-api/
 │  ├─ mer.png
 │  └─ silo.sqlite
 ├─ middlewares/
+│  ├─ problems.middlewares.js
 │  ├─ services.middlewares.js
 │  ├─ tasks.middlewares.js
 │  └─ users.middlewares.js
