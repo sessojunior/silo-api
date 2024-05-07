@@ -55,22 +55,29 @@ silo-api/
 ├─ config/
 │  └─ config.json
 ├─ controllers/
+│  ├─ problemcategories.controller.js
 │  ├─ problems.controller.js
 │  ├─ services.controller.js
+│  ├─ solutions.controller.js
 │  ├─ tasks.controller.js
 │  └─ users.controller.js
 ├─ database/
 │  ├─ mer.png
 │  └─ silo.sqlite
 ├─ middlewares/
-│  ├─ problems.middlewares.js
-│  ├─ services.middlewares.js
-│  ├─ tasks.middlewares.js
-│  └─ users.middlewares.js
+│  ├─ problemcategories.middleware.js
+│  ├─ problems.middleware.js
+│  ├─ services.middleware.js
+│  ├─ solutions.middleware.js
+│  ├─ tasks.middleware.js
+│  └─ users.middleware.js
 ├─ migrations/
 ├─ models/
 │  ├─ index.js
+│  ├─ problemcategories.js
+│  ├─ problems.js
 │  ├─ services.js
+│  ├─ solutions.js
 │  ├─ tasks.js
 │  └─ users.js
 ├─ node_modules/
@@ -132,6 +139,7 @@ _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquiv
 > npx sequelize-cli model:generate --name Tasks --attributes serviceId:integer,name:string,description:string
 > npx sequelize-cli model:generate --name Problems --attributes taskId:integer,title:string,description:string
 > npx sequelize-cli model:generate --name ProblemCategories --attributes name:string
+> npx sequelize-cli model:generate --name Solutions --attributes description:string
 ```
 
 _Observação:_ Insira vírgulas sem espaços.
@@ -345,7 +353,7 @@ const schema = {
 [DELETE]  /problems/:id  (Apagar um problema pelo ID)
 ```
 
-**Informações: /problemcategories**
+**Categorias de problemas: /problemcategories**
 
 ```bash
 [GET]     /problemcategories
@@ -354,6 +362,17 @@ const schema = {
 [GET]     /problemcategories/:id  (Obter dados de um problema pelo ID)
 [PUT]     /problemcategories/:id  (Alterar dados de um problema pelo ID)
 [DELETE]  /problemcategories/:id  (Apagar um problema pelo ID)
+```
+
+**Soluções: /solutions**
+
+```bash
+[GET]     /solutions
+[GET]     /solutions?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=
+[POST]    /solutions      (Cadastrar uma nova solução)
+[GET]     /solutions/:id  (Obter dados de uma solução pelo ID)
+[PUT]     /solutions/:id  (Alterar dados de uma solução pelo ID)
+[DELETE]  /solutions/:id  (Apagar uma solução pelo ID)
 ```
 
 Todas as rotas devem ser adicionadas no arquivo _./routes.js_.

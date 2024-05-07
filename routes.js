@@ -7,6 +7,7 @@ const { getServices, addService, getService, updateService, deleteService } = re
 const { getTasks, addTask, getTask, updateTask, deleteTask } = require("./controllers/tasks.controller");
 const { getProblems, addProblem, getProblem, updateProblem, deleteProblem } = require("./controllers/problems.controller");
 const { getProblemCategories, addProblemCategory, getProblemCategory, updateProblemCategory, deleteProblemCategory } = require("./controllers/problemcategories.controller");
+const { getSolutions, addSolution, getSolution, updateSolution, deleteSolution } = require("./controllers/solutions.controller");
 
 // Middlewares
 const { checkAddUser, checkUpdateUser } = require("./middlewares/users.middleware");
@@ -14,6 +15,7 @@ const { checkDataService } = require("./middlewares/services.middleware");
 const { checkDataTask } = require("./middlewares/tasks.middleware");
 const { checkDataProblem } = require("./middlewares/problems.middleware");
 const { checkDataProblemCategory } = require("./middlewares/problemcategories.middleware");
+const { checkDataSolution } = require("./middlewares/solutions.middleware");
 
 // Routes: /users
 router.get("/users", getUsers);
@@ -49,6 +51,13 @@ router.post("/problemcategories", checkDataProblemCategory, addProblemCategory);
 router.get("/problemcategories/:id", getProblemCategory);
 router.put("/problemcategories/:id", checkDataProblemCategory, updateProblemCategory);
 router.delete("/problemcategories/:id", deleteProblemCategory);
+
+// Routes: /solutions
+router.get("/solutions", getSolutions);
+router.post("/solutions", checkDataSolution, addSolution);
+router.get("/solutions/:id", getSolution);
+router.put("/solutions/:id", checkDataSolution, updateSolution);
+router.delete("/solutions/:id", deleteSolution);
 
 // Routes: 404 (Not Found)
 router.all("*", (req, res) => {
