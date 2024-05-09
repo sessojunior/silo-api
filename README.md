@@ -141,6 +141,7 @@ _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquiv
 > npx sequelize-cli model:generate --name ProblemCategories --attributes name:string
 > npx sequelize-cli model:generate --name Solutions --attributes description:string
 > npx sequelize-cli model:generate --name ProblemsVsSolutions --attributes problemId:integer,solutionId:integer
+> npx sequelize-cli model:generate --name ProblemsVsProblemCategories --attributes problemId:integer,problemCategoryId:integer
 ```
 
 _Observação:_ Insira vírgulas sem espaços.
@@ -383,6 +384,15 @@ const schema = {
 [GET]     /problemsvssolutions?problemId=1  (Obter dados de um relacionamento de problemas x solução pelo ID do problema)
 [GET]     /problemsvssolutions?solutionId=1  (Obter dados de um relacionamento de problemas x solução pelo ID da solução)
 [DELETE]  /problemsvssolutions?problemId=1&solutionId=1  (Apagar um relacionamento de problemas x solução pelo ID do problema e da solução)
+```
+
+**Problemas x Categorias de problemas (relacionamento): /problemsvsproblemcategories**
+
+```bash
+[POST]    /problemsvsproblemcategories      (Cadastrar um relacionamento de problemas x categoria de problemas)
+[GET]     /problemsvsproblemcategories?problemId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID do problema)
+[GET]     /problemsvsproblemcategories?problemCategoryId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID da solução)
+[DELETE]  /problemsvsproblemcategories?problemId=1&problemCategoryId=1  (Apagar um relacionamento de problemas x categoria de problemas pelo ID do problema e da solução)
 ```
 
 Todas as rotas devem ser adicionadas no arquivo _./routes.js_.

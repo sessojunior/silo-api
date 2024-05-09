@@ -9,6 +9,7 @@ const { getProblems, addProblem, getProblem, updateProblem, deleteProblem } = re
 const { getProblemCategories, addProblemCategory, getProblemCategory, updateProblemCategory, deleteProblemCategory } = require("./controllers/problemcategories.controller");
 const { getSolutions, addSolution, getSolution, updateSolution, deleteSolution } = require("./controllers/solutions.controller");
 const { getProblemVsSolution, addProblemVsSolution, deleteProblemVsSolution } = require("./controllers/problemsvssolutions.controller");
+const { getProblemVsProblemCategory, addProblemVsProblemCategory, deleteProblemVsProblemCategory } = require("./controllers/problemsvsproblemcategories.controller");
 
 // Middlewares
 const { checkAddUser, checkUpdateUser } = require("./middlewares/users.middleware");
@@ -64,6 +65,11 @@ router.delete("/solutions/:id", deleteSolution);
 router.post("/problemsvssolutions", addProblemVsSolution);
 router.get("/problemsvssolutions", getProblemVsSolution);
 router.delete("/problemsvssolutions", deleteProblemVsSolution);
+
+// Routes: /problemsvssolutions
+router.post("/problemsvsproblemcategories", addProblemVsProblemCategory);
+router.get("/problemsvsproblemcategories", getProblemVsProblemCategory);
+router.delete("/problemsvsproblemcategories", deleteProblemVsProblemCategory);
 
 // Routes: 404 (Not Found)
 router.all("*", (req, res) => {
