@@ -25,6 +25,8 @@ A API será desenvolvida para dar suporte ao front-end do projeto.
 > npm install body-parser --save
 > npm install dotenv --save
 > npm install sequelize sqlite3 --save
+> npm install bcrypt --save
+> npm install jsonwebtoken --save
 ```
 
 E também as dependências de desenvolvimento:
@@ -57,38 +59,50 @@ silo-api/
 ├─ controllers/
 │  ├─ problemcategories.controller.js
 │  ├─ problems.controller.js
+│  ├─ problemsvsproblemcategories.controller.js
+│  ├─ problemsvssolutions.controller.js
+│  ├─ roles.controller.js
 │  ├─ services.controller.js
 │  ├─ solutions.controller.js
 │  ├─ tasks.controller.js
 │  └─ users.controller.js
+│  └─ usersvsroles.controller.js
 ├─ database/
 │  ├─ mer.png
 │  └─ silo.sqlite
 ├─ middlewares/
 │  ├─ problemcategories.middleware.js
 │  ├─ problems.middleware.js
+│  ├─ roles.middleware.js
 │  ├─ services.middleware.js
 │  ├─ solutions.middleware.js
 │  ├─ tasks.middleware.js
-│  └─ users.middleware.js
+│  ├─ users.middleware.js
+│  └─ usersvsroles.middleware.js
 ├─ migrations/
 ├─ models/
 │  ├─ index.js
 │  ├─ problemcategories.js
 │  ├─ problems.js
+│  ├─ problemsvsproblemcategories.js
+│  ├─ problemsvssolutions.js
+│  ├─ roles.js
 │  ├─ services.js
 │  ├─ solutions.js
 │  ├─ tasks.js
-│  └─ users.js
+│  ├─ users.js
+│  └─ usersvsroles.js
 ├─ node_modules/
+├─ routes/
+│  ├─ auth.js
+│  └─ index.js
 ├─ seeders/
 ├─ .env
 ├─ .gitignore
 ├─ config.js
 ├─ index.js
 ├─ package.json
-├─ README.md
-└─ routes.js
+└─ README.md
 ```
 
 A estrutura abaixo pode ser obtida inserindo o comando _tree_ no terminal do Windows.
@@ -134,7 +148,7 @@ _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquiv
 **3 - Criar as entidades do banco de dados:**
 
 ```bash
-> npx sequelize-cli model:generate --name Users --attributes name:string,email:string,passwordHash:string
+> npx sequelize-cli model:generate --name Users --attributes name:string,email:string,password:string
 > npx sequelize-cli model:generate --name Services --attributes name:string
 > npx sequelize-cli model:generate --name Tasks --attributes serviceId:integer,name:string,description:string
 > npx sequelize-cli model:generate --name Problems --attributes taskId:integer,title:string,description:string
@@ -142,6 +156,8 @@ _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquiv
 > npx sequelize-cli model:generate --name Solutions --attributes description:string
 > npx sequelize-cli model:generate --name ProblemsVsSolutions --attributes problemId:integer,solutionId:integer
 > npx sequelize-cli model:generate --name ProblemsVsProblemCategories --attributes problemId:integer,problemCategoryId:integer
+> npx sequelize-cli model:generate --name Roles --attributes name:integer
+> npx sequelize-cli model:generate --name UsersVsRoles --attributes userId:integer,roleId:integer
 ```
 
 _Observação:_ Insira vírgulas sem espaços.
@@ -160,7 +176,7 @@ Se no futuro quiser **alterar a coluna de uma tabela**, criar uma nova migration
 > npx sequelize-cli migration:create --name alter-users
 ```
 
-Depois editar o arquivo criado com o migration. Por exemplo, para fazer com que o arquivo _20240506121018-alter-users.js_ (criado pelo comando acima) altere a coluna _passwordHash_ para _password_hash_ na tabela _Users_, editar o arquivo para deixá-lo da seguinte forma:
+Depois editar o arquivo criado com o migration é possível alterar a estrutura. Por exemplo, para fazer com que o arquivo _20240506121018-alter-users.js_ (criado pelo comando acima) altere a coluna _password_ para _password_hash_ na tabela _Users_, é só editar o arquivo para deixá-lo da seguinte forma:
 
 ```bash
 'use strict';
@@ -168,11 +184,11 @@ Depois editar o arquivo criado com o migration. Por exemplo, para fazer com que 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-     await queryInterface.renameColumn("Users", "passwordHash", "password_hash");
+     await queryInterface.renameColumn("Users", "password", "password_hash");
   },
 
   async down (queryInterface, Sequelize) {
-     await queryInterface.renameColumn("Users", "password_hash", "passwordHash");
+     await queryInterface.renameColumn("Users", "password_hash", "password");
   }
 };
 ```
@@ -182,6 +198,8 @@ Depois rodar o comando abaixo para atualizar:
 ```bash
 > npx sequelize-cli db:migrate
 ```
+
+Entretanto, irei deixar do jeito que está.
 
 **6 - Para criar relacionamentos entre tabelas, editar por exemplo o arquivo criado com o comando _npx sequelize-cli model:generate ..._ e adicionar references. Por exemplo:**
 
@@ -242,6 +260,25 @@ Por fim rodar o comando abaixo para atualizar:
 > npx sequelize-cli db:migrate
 ```
 
+É necessário alterar também o arquivo do diretório _./models_, pois precisa estar definido com o relacionamento. Por exemplo, para o arquivo _./models/tasks.js_ alterar assim:
+
+```bash
+		static associate(models) {
+			this.hasOne(models.Services, { foreignKey: "serviceId" });
+		}
+```
+
+Para o arquivo _./models/problemsvssolutions.js_, deixar assim:
+
+```bash
+		static associate(models) {
+			this.hasMany(models.Problems, { foreignKey: "problemId" });
+			this.hasMany(models.Solutions, { foreignKey: "solutionId" });
+		}
+```
+
+Fazer isso para cada tabela que tiver um relacionamento.
+
 Para **criar uma nova coluna em uma tabela** após a tabela já ter sido criada, rodar por exemplo, o seguinte comando para criar uma nova _migration_:
 
 ```bash
@@ -277,15 +314,15 @@ Acesse o link da documentação oficial da [Query Interface](https://sequelize.o
 
 As rotas estão divididas da seguinte forma:
 
-**Usuários: /users**
+**Usuários: /api/users**
 
 ```bash
-[GET]     /users      (Listar os usuários)
-[GET]     /users?page=1&limit_per_page=10&order_by=id&order_sort=ASC&filter=mario
-[POST]    /users      (Cadastrar um novo usuário)
-[GET]     /users/:id  (Obter dados de um usuário pelo ID)
-[PUT]     /users/:id  (Alterar dados de um usuário pelo ID)
-[DELETE]  /users/:id  (Apagar um usuário pelo ID)
+[GET]     /api/users      (Listar os usuários)
+[GET]     /api/users?page=1&limit_per_page=10&order_by=id&order_sort=ASC&filter=mario
+[POST]    /api/users      (Cadastrar um novo usuário)
+[GET]     /api/users/:id  (Obter dados de um usuário pelo ID)
+[PUT]     /api/users/:id  (Alterar dados de um usuário pelo ID)
+[DELETE]  /api/users/:id  (Apagar um usuário pelo ID)
 ```
 
 Para cadastrar um novo usuário é necessário enviar por _body_:
@@ -310,15 +347,15 @@ const schema = {
 
 Isso também vale para as demais rotas.
 
-**Serviços: /services**
+**Serviços: /api/services**
 
 ```bash
-[GET]     /services      (Listar os serviços)
-[GET]     /services?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=brams
-[POST]    /services      (Cadastrar um novo serviço)
-[GET]     /services/:id  (Obter dados de um serviço pelo ID)
-[PUT]     /services/:id  (Alterar dados de um serviço pelo ID)
-[DELETE]  /services/:id  (Apagar um serviço pelo ID)
+[GET]     /api/services      (Listar os serviços)
+[GET]     /api/services?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=brams
+[POST]    /api/services      (Cadastrar um novo serviço)
+[GET]     /api/services/:id  (Obter dados de um serviço pelo ID)
+[PUT]     /api/services/:id  (Alterar dados de um serviço pelo ID)
+[DELETE]  /api/services/:id  (Apagar um serviço pelo ID)
 ```
 
 ```bash
@@ -333,68 +370,93 @@ const schema = {
 };
 ```
 
-**Tarefas: /tasks**
+**Tarefas: /api/tasks**
 
 ```bash
-[GET]     /tasks      (Listar as tarefas)
-[GET]     /tasks?page=1&limit_per_page=30&order_by=id&order_sort=ASC&serviceId=1&filter=pos
-[POST]    /tasks      (Cadastrar uma nova tarefa)
-[GET]     /tasks/:id  (Obter dados de uma tarefa pelo ID)
-[PUT]     /tasks/:id  (Alterar dados de uma tarefa pelo ID)
-[DELETE]  /tasks/:id  (Apagar uma tarefa pelo ID)
+[GET]     /api/tasks      (Listar as tarefas)
+[GET]     /api/tasks?page=1&limit_per_page=30&order_by=id&order_sort=ASC&serviceId=1&filter=pos
+[POST]    /api/tasks      (Cadastrar uma nova tarefa)
+[GET]     /api/tasks/:id  (Obter dados de uma tarefa pelo ID)
+[PUT]     /api/tasks/:id  (Alterar dados de uma tarefa pelo ID)
+[DELETE]  /api/tasks/:id  (Apagar uma tarefa pelo ID)
 ```
 
-**Informações: /problems**
+**Informações: /api/problems**
 
 ```bash
-[GET]     /problems
-[GET]     /problems?page=1&limit_per_page=30&order_by=id&order_sort=ASC&taskId=1&filter=
-[POST]    /problems      (Cadastrar um novo problema)
-[GET]     /problems/:id  (Obter dados de um problema pelo ID)
-[PUT]     /problems/:id  (Alterar dados de um problema pelo ID)
-[DELETE]  /problems/:id  (Apagar um problema pelo ID)
+[GET]     /api/problems      (Listar os problemas)
+[GET]     /api/problems?page=1&limit_per_page=30&order_by=id&order_sort=ASC&taskId=1&filter=
+[POST]    /api/problems      (Cadastrar um novo problema)
+[GET]     /api/problems/:id  (Obter dados de um problema pelo ID)
+[PUT]     /api/problems/:id  (Alterar dados de um problema pelo ID)
+[DELETE]  /api/problems/:id  (Apagar um problema pelo ID)
 ```
 
-**Categorias de problemas: /problemcategories**
+**Categorias de problemas: /api/problemcategories**
 
 ```bash
-[GET]     /problemcategories
-[GET]     /problemcategories?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=
-[POST]    /problemcategories      (Cadastrar um novo problema)
-[GET]     /problemcategories/:id  (Obter dados de um problema pelo ID)
-[PUT]     /problemcategories/:id  (Alterar dados de um problema pelo ID)
-[DELETE]  /problemcategories/:id  (Apagar um problema pelo ID)
+[GET]     /api/problemcategories      (Listar as categorias de problemas)
+[GET]     /api/problemcategories?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=
+[POST]    /api/problemcategories      (Cadastrar um novo problema)
+[GET]     /api/problemcategories/:id  (Obter dados de um problema pelo ID)
+[PUT]     /api/problemcategories/:id  (Alterar dados de um problema pelo ID)
+[DELETE]  /api/problemcategories/:id  (Apagar um problema pelo ID)
 ```
 
-**Soluções: /solutions**
+**Soluções: /api/solutions**
 
 ```bash
-[GET]     /solutions
-[GET]     /solutions?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=
-[POST]    /solutions      (Cadastrar uma nova solução)
-[GET]     /solutions/:id  (Obter dados de uma solução pelo ID)
-[PUT]     /solutions/:id  (Alterar dados de uma solução pelo ID)
-[DELETE]  /solutions/:id  (Apagar uma solução pelo ID)
+[GET]     /api/solutions      (Listar as soluções)
+[GET]     /api/solutions?page=1&limit_per_page=30&order_by=id&order_sort=ASC&filter=
+[POST]    /api/solutions      (Cadastrar uma nova solução)
+[GET]     /api/solutions/:id  (Obter dados de uma solução pelo ID)
+[PUT]     /api/solutions/:id  (Alterar dados de uma solução pelo ID)
+[DELETE]  /api/solutions/:id  (Apagar uma solução pelo ID)
 ```
 
-**Problemas x soluções (relacionamento): /problemsvssolutions**
+**Problemas x soluções (relacionamento): /api/problemsvssolutions**
 
 ```bash
-[POST]    /problemsvssolutions      (Cadastrar um relacionamento de problemas x solução)
-[GET]     /problemsvssolutions?problemId=1  (Obter dados de um relacionamento de problemas x solução pelo ID do problema)
-[GET]     /problemsvssolutions?solutionId=1  (Obter dados de um relacionamento de problemas x solução pelo ID da solução)
-[DELETE]  /problemsvssolutions?problemId=1&solutionId=1  (Apagar um relacionamento de problemas x solução pelo ID do problema e da solução)
+[POST]    /api/problemsvssolutions      (Cadastrar um relacionamento de problemas x solução)
+[GET]     /api/problemsvssolutions?problemId=1  (Obter dados de um relacionamento de problemas x solução pelo ID do problema)
+[GET]     /api/problemsvssolutions?solutionId=1  (Obter dados de um relacionamento de problemas x solução pelo ID da solução)
+[DELETE]  /api/problemsvssolutions?problemId=1&solutionId=1  (Apagar um relacionamento de problemas x solução pelo ID do problema e da solução)
 ```
 
-**Problemas x Categorias de problemas (relacionamento): /problemsvsproblemcategories**
+**Problemas x Categorias de problemas (relacionamento): /api/problemsvsproblemcategories**
 
 ```bash
-[POST]    /problemsvsproblemcategories      (Cadastrar um relacionamento de problemas x categoria de problemas)
-[GET]     /problemsvsproblemcategories?problemId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID do problema)
-[GET]     /problemsvsproblemcategories?problemCategoryId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID da solução)
-[DELETE]  /problemsvsproblemcategories?problemId=1&problemCategoryId=1  (Apagar um relacionamento de problemas x categoria de problemas pelo ID do problema e da solução)
+[POST]    /api/problemsvsproblemcategories      (Cadastrar um relacionamento de problemas x categoria de problemas)
+[GET]     /api/problemsvsproblemcategories?problemId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID do problema)
+[GET]     /api/problemsvsproblemcategories?problemCategoryId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID da solução)
+[DELETE]  /api/problemsvsproblemcategories?problemId=1&problemCategoryId=1  (Apagar um relacionamento de problemas x categoria de problemas pelo ID do problema e da solução)
 ```
 
-Todas as rotas devem ser adicionadas no arquivo _./routes.js_.
+**Funções dos usuários: /api/roles**
+
+```bash
+[GET]     /api/roles      (Listar as funções)
+[POST]    /api/roles      (Cadastrar uma nova função)
+[PUT]     /api/roles/:id  (Alterar dados de uma função pelo ID)
+[DELETE]  /api/roles/:id  (Apagar uma função pelo ID)
+```
+
+**Usuários x Funções dos usuários: /api/usersvsroles**
+
+```bash
+[POST]    /api/usersvsroles      (Cadastrar um relacionamento de usuário x função de usuário)
+[GET]     /api/usersvsroles?userId=1  (Obter dados de um relacionamento de usuário x função de usuário pelo ID do usuário)
+[DELETE]  /api/usersvsroles?userId=1&roleId=1  (Apagar um relacionamento de usuário x função de usuário pelo ID do usuário e da função do usuário)
+```
+
+### Autorização com JWT
+
+O projeto utiliza o [JWT](https://jwt.io/), pois tem a vantagem de transmitir os dados do usuário por meio de token. É melhor do que a utilização por Session, pois não precisa armazenar sessions no servidor, apenas utiliza o token do lado do cliente em uma localStorage, por exemplo. Utilizando esta abordagem, seguimos os padrões do RESTful.
+
+```bash
+[POST]    /api/auth      (Login com e-mail e senha)
+```
+
+Todas as rotas devem ser adicionadas no arquivo _./routes/index.js_. A rota de login está no arquivo _./routes/auth.js_.
 
 Estou utilizando o [Insomnia](https://insomnia.rest/download) para testar as rotas, mas utilize o [Postman](https://www.postman.com/downloads/) se você quiser.

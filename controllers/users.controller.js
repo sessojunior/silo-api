@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const { sequelize } = require("../config");
 const Users = require("../models/users")(sequelize, Sequelize.DataTypes);
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 
 // [GET] /users
 // req.query: /users?page=1&limit_per_page=10&order_by=id&order_sort=ASC&filter=Mario
@@ -79,8 +79,7 @@ module.exports.addUser = async (req, res) => {
 
 	const name = req.body.name.trim();
 	const email = req.body.email.trim().toLowerCase();
-	const password = req.body.password;
-	const passwordHash = await bcrypt.hash(password, 8);
+	const password = await bcrypt.hash(req.body.password, 8);
 
 	if (await Users.findOne({ where: { email: email } })) {
 		return res.status(400).json({ error: "Já existe um usuário com este e-mail." });
@@ -89,7 +88,7 @@ module.exports.addUser = async (req, res) => {
 	await Users.create({
 		name: name,
 		email: email,
-		passwordHash: passwordHash,
+		password: password,
 	})
 		.then((data) => {
 			res.status(201).json({
@@ -156,10 +155,10 @@ module.exports.updateUser = async (req, res) => {
 	};
 
 	if (req.body.password !== undefined) {
-		const passwordHash = await bcrypt.hash(req.body.password, 8);
+		const password = await bcrypt.hash(req.body.password, 8);
 		userData = {
 			...userData,
-			passwordHash: passwordHash,
+			password: password,
 		};
 	}
 

@@ -7,6 +7,9 @@ const Sequelize = require("sequelize");
 // App
 const app = express();
 
+// Max request body size
+app.use(express.json({ limit: "256kb" }));
+
 // CORS
 app.use(cors());
 
@@ -27,7 +30,7 @@ app.use((err, req, res, next) => {
 	next();
 });
 
-// Environment
+// Environment variables
 dotenv.config();
 const environment = process.env.NODE_ENV || "development";
 const port = process.env.PORT || 3030;

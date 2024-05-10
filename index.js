@@ -1,11 +1,13 @@
 const { app, environment, port } = require("./config");
 const bodyParser = require("body-parser");
 
-// Routes
+// Import routes
 const routes = require("./routes");
+const authRoutes = require("./routes/auth");
 
-// Routes
-app.use(routes);
+// Setup routes
+app.use("/api/auth", authRoutes);
+app.use("/api", routes);
 
 // Server
 app.listen(port, (err) => {
