@@ -210,8 +210,8 @@ Entretanto, irei deixar do jeito que está.
           model: "Services",
           key: "id",
         },
-				onUpdate: "CASCADE",
-				onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
 ```
 
@@ -235,8 +235,8 @@ module.exports = {
           model: "Services",
           key: "id",
         },
-				onUpdate: "CASCADE",
-				onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
@@ -263,18 +263,18 @@ Por fim rodar o comando abaixo para atualizar:
 É necessário alterar também o arquivo do diretório _./models_, pois precisa estar definido com o relacionamento. Por exemplo, para o arquivo _./models/tasks.js_ alterar assim:
 
 ```bash
-		static associate(models) {
-			this.hasOne(models.Services, { foreignKey: "serviceId" });
-		}
+    static associate(models) {
+      this.hasOne(models.Services, { foreignKey: "serviceId" });
+    }
 ```
 
 Para o arquivo _./models/problemsvssolutions.js_, deixar assim:
 
 ```bash
-		static associate(models) {
-			this.hasMany(models.Problems, { foreignKey: "problemId" });
-			this.hasMany(models.Solutions, { foreignKey: "solutionId" });
-		}
+    static associate(models) {
+      this.hasMany(models.Problems, { foreignKey: "problemId" });
+      this.hasMany(models.Solutions, { foreignKey: "solutionId" });
+    }
 ```
 
 Fazer isso para cada tabela que tiver um relacionamento.
@@ -454,7 +454,62 @@ const schema = {
 O projeto utiliza o [JWT](https://jwt.io/), pois tem a vantagem de transmitir os dados do usuário por meio de token. É melhor do que a utilização por Session, pois não precisa armazenar sessions no servidor, apenas utiliza o token do lado do cliente em uma localStorage, por exemplo. Utilizando esta abordagem, seguimos os padrões do RESTful.
 
 ```bash
-[POST]    /api/auth      (Login com e-mail e senha)
+[POST]    /api/auth      (Login com e-mail e senha para obter o token que será enviado em cada requisição)
+```
+
+## Criando seeders
+
+Algumas tabelas podem ser já pré-preenchidas, tanto para teste quanto para situações reais.
+
+A tabela Roles já terá algumas informações pré-preenchidas. Para isso vamos popular com alguns dados a tabela:
+
+```bash
+> npx sequelize-cli seed:generate --name Roles
+```
+
+Realizar as seguintes alterações no arquivo criado, por exemplo, o arquivo _./seeders/20240510121749-Roles.js_:
+
+```bash
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.bulkInsert("Roles", [
+      { name: "admin", createdAt: "", updatedAt: "" },
+      { name: "editor", createdAt: "", updatedAt: "" },
+      { name: "viewer", createdAt: "", updatedAt: "" },
+    ], {});
+  },
+
+  async down (queryInterface, Sequelize) {
+    await queryInterface.bulkDelete("Roles", null, {});
+  }
+};
+```
+
+E em seguida aplicar as alterações ao seeder específico:
+
+```bash
+> npx sequelize-cli db:seed --seed 20240510121749-Roles.js
+```
+
+Para aplicar as alterações a todos os seeders, seria este o comando:
+
+```bash
+> npx sequelize-cli db:seed:all
+```
+
+Para desfazer um seed específico:
+
+```bash
+> npx sequelize db:seed:undo --seed name-of-seed-as-in-data
+```
+
+Para desfazer todos os seeders gerados até o momento:
+
+```bash
+> npx sequelize db:seed:undo:all
 ```
 
 Todas as rotas devem ser adicionadas no arquivo _./routes/index.js_. A rota de login está no arquivo _./routes/auth.js_.

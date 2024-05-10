@@ -35,14 +35,19 @@ router.post("/", async (req, res) => {
 	}
 
 	// Token
-	// const token = jwt.sign(
-	// 	{
-	// 		id: user.id,
-	// 		roles: user.roles,
-	// 	},
-	// 	"jwtPrivateKey",
-	// 	{ expiresIn: "15m" }
-	// );
+	const token = jwt.sign(
+		{
+			id: user.id,
+			roles: user.roles,
+		},
+		"jwtPrivateKey",
+		{ expiresIn: "15m" }
+	);
+	if (!token) {
+		return res.status(400).json({ error: "Erro ao obter o token." });
+	}
+
+	return res.status(200).json({ token: token });
 });
 
 module.exports = router;
