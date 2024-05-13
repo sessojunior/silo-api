@@ -10,7 +10,7 @@ const { sequelize } = require("../config");
 const Users = require("../models/users")(sequelize, Sequelize.DataTypes);
 
 // Routes: /api/auth
-router.post("/", async (req, res) => {
+router.post(["/", "/login"], async (req, res) => {
 	const email = req.body.email.trim() || "";
 	const password = req.body.password || "";
 
@@ -38,7 +38,7 @@ router.post("/", async (req, res) => {
 		return res.status(400).json({ error: "Erro ao obter o token." });
 	}
 
-	return res.status(200).json({ token: token, roles: user.roles });
+	return res.status(200).json({ token: token, roles: JSON.parse(user.roles) });
 });
 
 module.exports = router;

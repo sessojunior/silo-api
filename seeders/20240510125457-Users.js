@@ -12,8 +12,14 @@ module.exports = {
 		 *   isBetaMember: false
 		 * }], {});
 		 */
-		await queryInterface.bulkInsert("Users", [{ name: "Mario", email: "mario@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["admin", "editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" }], {});
-		await queryInterface.bulkInsert("Users", [{ name: "Lucas", email: "lucas@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" }], {});
+		await queryInterface.bulkInsert(
+			"Users",
+			[
+				{ name: "Mario", email: "mario@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["admin", "editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
+				{ name: "Lucas", email: "lucas@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
+			],
+			{}
+		);
 	},
 
 	async down(queryInterface, Sequelize) {

@@ -10,7 +10,7 @@ module.exports.auth = (req, res, next) => {
 		const decoded = jwt.verify(token, "jwtPrivateKey");
 		req.user = decoded;
 	} catch (error) {
-		return res.status(401).json({ error: "Token expirado." });
+		return res.status(401).json({ error: "Token inválido ou expirado." });
 	}
 
 	return next();

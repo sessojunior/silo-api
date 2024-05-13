@@ -61,24 +61,20 @@ silo-api/
 │  ├─ problems.controller.js
 │  ├─ problemsvsproblemcategories.controller.js
 │  ├─ problemsvssolutions.controller.js
-│  ├─ roles.controller.js
 │  ├─ services.controller.js
 │  ├─ solutions.controller.js
 │  ├─ tasks.controller.js
 │  └─ users.controller.js
-│  └─ usersvsroles.controller.js
 ├─ database/
 │  ├─ mer.png
 │  └─ silo.sqlite
 ├─ middlewares/
 │  ├─ problemcategories.middleware.js
 │  ├─ problems.middleware.js
-│  ├─ roles.middleware.js
 │  ├─ services.middleware.js
 │  ├─ solutions.middleware.js
 │  ├─ tasks.middleware.js
 │  ├─ users.middleware.js
-│  └─ usersvsroles.middleware.js
 ├─ migrations/
 ├─ models/
 │  ├─ index.js
@@ -86,12 +82,10 @@ silo-api/
 │  ├─ problems.js
 │  ├─ problemsvsproblemcategories.js
 │  ├─ problemsvssolutions.js
-│  ├─ roles.js
 │  ├─ services.js
 │  ├─ solutions.js
 │  ├─ tasks.js
 │  ├─ users.js
-│  └─ usersvsroles.js
 ├─ node_modules/
 ├─ routes/
 │  ├─ auth.js
@@ -156,8 +150,6 @@ _Observação:_ Se o banco de dados for do tipo SQLite é preciso criar o arquiv
 > npx sequelize-cli model:generate --name Solutions --attributes description:string
 > npx sequelize-cli model:generate --name ProblemsVsSolutions --attributes problemId:integer,solutionId:integer
 > npx sequelize-cli model:generate --name ProblemsVsProblemCategories --attributes problemId:integer,problemCategoryId:integer
-> npx sequelize-cli model:generate --name Roles --attributes name:integer
-> npx sequelize-cli model:generate --name UsersVsRoles --attributes userId:integer,roleId:integer
 ```
 
 _Observação:_ Insira vírgulas sem espaços.
@@ -331,7 +323,8 @@ Para cadastrar um novo usuário é necessário enviar por _body_:
 {
   "name": "Mario",
   "email": "mario@test.com",
-  "password": "123456"
+  "password": "123456",
+  "roles": ["admin", "editor", "viewer"]
 }
 ```
 
@@ -342,6 +335,7 @@ const schema = {
   name: yup.string().trim().required(),
   email: yup.string().trim().email().required(),
   password: yup.string().min(6).max(30).required(),
+  roles: yup.array().min(1).required(),
 };
 ```
 
@@ -432,23 +426,6 @@ const schema = {
 [DELETE]  /api/problemsvsproblemcategories?problemId=1&problemCategoryId=1  (Apagar um relacionamento de problemas x categoria de problemas pelo ID do problema e da solução)
 ```
 
-**Funções dos usuários: /api/roles**
-
-```bash
-[GET]     /api/roles      (Listar as funções)
-[POST]    /api/roles      (Cadastrar uma nova função)
-[PUT]     /api/roles/:id  (Alterar dados de uma função pelo ID)
-[DELETE]  /api/roles/:id  (Apagar uma função pelo ID)
-```
-
-**Usuários x Funções dos usuários: /api/usersvsroles**
-
-```bash
-[POST]    /api/usersvsroles      (Cadastrar um relacionamento de usuário x função de usuário)
-[GET]     /api/usersvsroles?userId=1  (Obter dados de um relacionamento de usuário x função de usuário pelo ID do usuário)
-[DELETE]  /api/usersvsroles?userId=1&roleId=1  (Apagar um relacionamento de usuário x função de usuário pelo ID do usuário e da função do usuário)
-```
-
 ### Autorização com JWT
 
 O projeto utiliza o [JWT](https://jwt.io/), pois tem a vantagem de transmitir os dados do usuário por meio de token. É melhor do que a utilização por Session, pois não precisa armazenar sessions no servidor, apenas utiliza o token do lado do cliente em uma localStorage, por exemplo. Utilizando esta abordagem, seguimos os padrões do RESTful.
@@ -457,17 +434,21 @@ O projeto utiliza o [JWT](https://jwt.io/), pois tem a vantagem de transmitir os
 [POST]    /api/auth      (Login com e-mail e senha para obter o token que será enviado em cada requisição)
 ```
 
+Se o usuário possuir autorização (_roles_), ele poderá acessar a rota. As _roles_ permitidas são: _admin_, _editor_ e _viewer_.
+
+Para acessar deve inserir no _Header_ da requisição no _Insomnia_ ou _Postman_ a chave _x-auth-token_ e o valor do token obtido através do login.
+
 ## Criando seeders
 
 Algumas tabelas podem ser já pré-preenchidas, tanto para teste quanto para situações reais.
 
-A tabela Roles já terá algumas informações pré-preenchidas. Para isso vamos popular com alguns dados a tabela:
+A tabela Users já terá algumas informações pré-preenchidas. Para isso vamos popular com alguns dados a tabela:
 
 ```bash
-> npx sequelize-cli seed:generate --name Roles
+> npx sequelize-cli seed:generate --name RoUsersles
 ```
 
-Realizar as seguintes alterações no arquivo criado, por exemplo, o arquivo _./seeders/20240510121749-Roles.js_:
+Realizar as seguintes alterações no arquivo criado, por exemplo, o arquivo _./seeders/20240510121749-Users.js_:
 
 ```bash
 'use strict';
@@ -475,15 +456,14 @@ Realizar as seguintes alterações no arquivo criado, por exemplo, o arquivo _./
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert("Roles", [
-      { name: "admin", createdAt: "", updatedAt: "" },
-      { name: "editor", createdAt: "", updatedAt: "" },
-      { name: "viewer", createdAt: "", updatedAt: "" },
+    await queryInterface.bulkInsert("Users", [
+      { name: "Mario", email: "mario@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["admin", "editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
+      { name: "Lucas", email: "lucas@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
     ], {});
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("Roles", null, {});
+    await queryInterface.bulkDelete("Users", null, {});
   }
 };
 ```
@@ -491,7 +471,7 @@ module.exports = {
 E em seguida aplicar as alterações ao seeder específico:
 
 ```bash
-> npx sequelize-cli db:seed --seed 20240510121749-Roles.js
+> npx sequelize-cli db:seed --seed 20240510121749-Users.js
 ```
 
 Para aplicar as alterações a todos os seeders, seria este o comando:
@@ -503,7 +483,7 @@ Para aplicar as alterações a todos os seeders, seria este o comando:
 Para desfazer um seed específico:
 
 ```bash
-> npx sequelize db:seed:undo --seed 20240510121749-Roles.js
+> npx sequelize db:seed:undo --seed 20240510121749-Users.js
 ```
 
 Para desfazer todos os seeders gerados até o momento:

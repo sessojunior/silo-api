@@ -19,57 +19,60 @@ const { checkDataProblem } = require("../middlewares/problems.middleware");
 const { checkDataProblemCategory } = require("../middlewares/problemcategories.middleware");
 const { checkDataSolution } = require("../middlewares/solutions.middleware");
 
+const { auth } = require("../middlewares/auth.middleware");
+const { admin, editor, viewer } = require("../middlewares/roles.middleware");
+
 // Routes: /api/users
-router.get("/users", getUsers);
-router.post("/users", checkAddUser, addUser);
-router.get("/users/:id", getUser);
-router.put("/users/:id", checkUpdateUser, updateUser);
-router.delete("/users/:id", deleteUser);
+router.get("/users", [auth, admin], getUsers);
+router.post("/users", [auth, admin, checkAddUser], addUser);
+router.get("/users/:id", [auth, viewer], getUser);
+router.put("/users/:id", [auth, editor, checkUpdateUser], updateUser);
+router.delete("/users/:id", [auth, admin], deleteUser);
 
 // Routes: /api/services
-router.get("/services", getServices);
-router.post("/services", checkDataService, addService);
-router.get("/services/:id", getService);
-router.put("/services/:id", checkDataService, updateService);
-router.delete("/services/:id", deleteService);
+router.get("/services", [auth, viewer], getServices);
+router.post("/services", [auth, editor, checkDataService], addService);
+router.get("/services/:id", [auth, viewer], getService);
+router.put("/services/:id", [auth, editor, checkDataService], updateService);
+router.delete("/services/:id", [auth, editor], deleteService);
 
 // Routes: /api/tasks
-router.get("/tasks", getTasks);
-router.post("/tasks", checkDataTask, addTask);
-router.get("/tasks/:id", getTask);
-router.put("/tasks/:id", checkDataTask, updateTask);
-router.delete("/tasks/:id", deleteTask);
+router.get("/tasks", [auth, viewer], getTasks);
+router.post("/tasks", [auth, editor, checkDataTask], addTask);
+router.get("/tasks/:id", [auth, viewer], getTask);
+router.put("/tasks/:id", [auth, editor, checkDataTask], updateTask);
+router.delete("/tasks/:id", [auth, editor], deleteTask);
 
 // Routes: /api/problems
-router.get("/problems", getProblems);
-router.post("/problems", checkDataProblem, addProblem);
-router.get("/problems/:id", getProblem);
-router.put("/problems/:id", checkDataProblem, updateProblem);
-router.delete("/problems/:id", deleteProblem);
+router.get("/problems", [auth, viewer], getProblems);
+router.post("/problems", [auth, editor, checkDataProblem], addProblem);
+router.get("/problems/:id", [auth, viewer], getProblem);
+router.put("/problems/:id", [auth, editor, checkDataProblem], updateProblem);
+router.delete("/problems/:id", [auth, editor], deleteProblem);
 
 // Routes: /api/problemcategories
-router.get("/problemcategories", getProblemCategories);
-router.post("/problemcategories", checkDataProblemCategory, addProblemCategory);
-router.get("/problemcategories/:id", getProblemCategory);
-router.put("/problemcategories/:id", checkDataProblemCategory, updateProblemCategory);
-router.delete("/problemcategories/:id", deleteProblemCategory);
+router.get("/problemcategories", [auth, viewer], getProblemCategories);
+router.post("/problemcategories", [auth, editor, checkDataProblemCategory], addProblemCategory);
+router.get("/problemcategories/:id", [auth, viewer], getProblemCategory);
+router.put("/problemcategories/:id", [auth, editor, checkDataProblemCategory], updateProblemCategory);
+router.delete("/problemcategories/:id", [auth, editor], deleteProblemCategory);
 
 // Routes: /api/solutions
-router.get("/solutions", getSolutions);
-router.post("/solutions", checkDataSolution, addSolution);
-router.get("/solutions/:id", getSolution);
-router.put("/solutions/:id", checkDataSolution, updateSolution);
-router.delete("/solutions/:id", deleteSolution);
+router.get("/solutions", [auth, viewer], getSolutions);
+router.post("/solutions", [auth, editor, checkDataSolution], addSolution);
+router.get("/solutions/:id", [auth, viewer], getSolution);
+router.put("/solutions/:id", [auth, editor, checkDataSolution], updateSolution);
+router.delete("/solutions/:id", [auth, editor], deleteSolution);
 
 // Routes: /api/problemsvssolutions
-router.post("/problemsvssolutions", addProblemVsSolution);
-router.get("/problemsvssolutions", getProblemVsSolution);
-router.delete("/problemsvssolutions", deleteProblemVsSolution);
+router.post("/problemsvssolutions", [auth, editor], addProblemVsSolution);
+router.get("/problemsvssolutions", [auth, viewer], getProblemVsSolution);
+router.delete("/problemsvssolutions", [auth, editor], deleteProblemVsSolution);
 
-// Routes: /api/problemsvssolutions
-router.post("/problemsvsproblemcategories", addProblemVsProblemCategory);
-router.get("/problemsvsproblemcategories", getProblemVsProblemCategory);
-router.delete("/problemsvsproblemcategories", deleteProblemVsProblemCategory);
+// Routes: /api/problemsvsproblemcategories
+router.post("/problemsvsproblemcategories", [auth, editor], addProblemVsProblemCategory);
+router.get("/problemsvsproblemcategories", [auth, viewer], getProblemVsProblemCategory);
+router.delete("/problemsvsproblemcategories", [auth, editor], deleteProblemVsProblemCategory);
 
 // Routes: 404 (Not Found)
 router.all("*", (req, res) => {
