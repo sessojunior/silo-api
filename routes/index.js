@@ -10,8 +10,6 @@ const { getProblemCategories, addProblemCategory, getProblemCategory, updateProb
 const { getSolutions, addSolution, getSolution, updateSolution, deleteSolution } = require("../controllers/solutions.controller");
 const { getProblemVsSolution, addProblemVsSolution, deleteProblemVsSolution } = require("../controllers/problemsvssolutions.controller");
 const { getProblemVsProblemCategory, addProblemVsProblemCategory, deleteProblemVsProblemCategory } = require("../controllers/problemsvsproblemcategories.controller");
-const { getRoles, addRole, updateRole, deleteRole } = require("../controllers/roles.controller");
-const { getUserVsRole, addUserVsRole, deleteUserVsRole } = require("../controllers/usersvsroles.controller");
 
 // Middlewares
 const { checkAddUser, checkUpdateUser } = require("../middlewares/users.middleware");
@@ -20,7 +18,6 @@ const { checkDataTask } = require("../middlewares/tasks.middleware");
 const { checkDataProblem } = require("../middlewares/problems.middleware");
 const { checkDataProblemCategory } = require("../middlewares/problemcategories.middleware");
 const { checkDataSolution } = require("../middlewares/solutions.middleware");
-const { checkDataRole } = require("../middlewares/roles.middleware");
 
 // Routes: /api/users
 router.get("/users", getUsers);
@@ -73,17 +70,6 @@ router.delete("/problemsvssolutions", deleteProblemVsSolution);
 router.post("/problemsvsproblemcategories", addProblemVsProblemCategory);
 router.get("/problemsvsproblemcategories", getProblemVsProblemCategory);
 router.delete("/problemsvsproblemcategories", deleteProblemVsProblemCategory);
-
-// Routes: /api/roles
-router.get("/roles", getRoles);
-router.post("/roles", checkDataRole, addRole);
-router.put("/roles/:id", checkDataRole, updateRole);
-router.delete("/roles/:id", deleteRole);
-
-// Routes: /api/usersvsroles
-router.post("/usersvsroles", addUserVsRole);
-router.get("/usersvsroles", getUserVsRole);
-router.delete("/usersvsroles", deleteUserVsRole);
 
 // Routes: 404 (Not Found)
 router.all("*", (req, res) => {

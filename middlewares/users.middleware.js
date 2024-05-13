@@ -5,13 +5,17 @@ const schema = {
 	name: yup.string().trim().required(),
 	email: yup.string().trim().email().required(),
 	password: yup.string().min(6).max(30).required(),
+	roles: yup.array().min(1).required(),
 };
+
+const validRoles = ["admin", "editor", "viewer"];
+const checkRoles = (arr, target) => target.every((item) => arr.includes(item));
 
 // Add User
 module.exports.checkAddUser = async (req, res, next) => {
 	console.log(`Middleware (checkAddUser)`);
 
-	const { name, email, password } = req.body;
+	const { name, email, password, roles } = req.body;
 	let fields = [];
 
 	// Check fields
@@ -23,6 +27,9 @@ module.exports.checkAddUser = async (req, res, next) => {
 	}
 	if (password === undefined || !(await schema.password.isValid(password))) {
 		fields.push("password");
+	}
+	if (roles === undefined || !(await schema.roles.isValid(roles)) || !checkRoles(validRoles, roles)) {
+		fields.push("roles");
 	}
 
 	if (fields.length > 0) {
@@ -38,7 +45,7 @@ module.exports.checkAddUser = async (req, res, next) => {
 module.exports.checkUpdateUser = async (req, res, next) => {
 	console.log(`Middleware (checkUpdateUser)`);
 
-	const { name, email, password } = req.body;
+	const { name, email, password, roles } = req.body;
 	let fields = [];
 
 	// Required fields
@@ -55,6 +62,9 @@ module.exports.checkUpdateUser = async (req, res, next) => {
 	}
 	if (password !== undefined && !(await schema.password.isValid(password))) {
 		fields.push("password");
+	}
+	if (roles === undefined || !(await schema.roles.isValid(roles)) || !checkRoles(validRoles, roles)) {
+		fields.push("roles");
 	}
 
 	if (fields.length > 0) {

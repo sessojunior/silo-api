@@ -4,6 +4,10 @@ const { sequelize } = require("../config");
 const Users = require("../models/users")(sequelize, Sequelize.DataTypes);
 const bcrypt = require("bcrypt");
 
+function formatDate(date) {
+	return `${date.toLocaleString("pt-BR", { year: "numeric" })}-${date.toLocaleString("pt-BR", { month: "2-digit" })}-${date.toLocaleString("pt-BR", { day: "2-digit" })} ${date.toLocaleString("pt-BR", { hour: "2-digit" })}:${date.toLocaleString("pt-BR", { minute: "2-digit" })}:${date.toLocaleString("pt-BR", { second: "2-digit" })}`;
+}
+
 // [GET] /users
 // req.query: /users?page=1&limit_per_page=10&order_by=id&order_sort=ASC&filter=Mario
 module.exports.getUsers = async (req, res) => {
@@ -22,7 +26,7 @@ module.exports.getUsers = async (req, res) => {
 	limit_per_page = limit_per_page > 1000 ? 1000 : limit_per_page;
 
 	// Columns
-	const columns = ["id", "name", "email", "createdAt", "updatedAt"];
+	const columns = ["id", "name", "email", "roles", "createdAt", "updatedAt"];
 
 	// Order by
 	const order_by = req.query.order_by !== undefined && columns.includes(req.query.order_by) ? req.query.order_by : "id";
@@ -52,6 +56,16 @@ module.exports.getUsers = async (req, res) => {
 		order: [[order_by, order_sort]],
 	})
 		.then((data) => {
+			const customData = data.map((item) => {
+				return {
+					id: item.id,
+					name: item.name,
+					email: item.email,
+					roles: JSON.parse(item.roles),
+					createdAt: formatDate(item.createdAt),
+					updatedAt: formatDate(item.updatedAt),
+				};
+			});
 			res.status(200).json({
 				page: page,
 				limit_per_page: limit_per_page,
@@ -59,7 +73,7 @@ module.exports.getUsers = async (req, res) => {
 				total_items: total_items,
 				order_by: order_by,
 				order_sort: order_sort,
-				data: data,
+				data: customData,
 			});
 		})
 		.catch((err) => {
@@ -72,14 +86,17 @@ module.exports.getUsers = async (req, res) => {
 // {
 // 	 "name": "Mario",
 // 	 "email": "mario@test.com",
-// 	 "password": "123456"
+// 	 "password": "123456",
+// 	 "roles": ["admin", "editor", "viewer"]
 // }
 module.exports.addUser = async (req, res) => {
 	console.log(`Url requisitada (addUser): ${req.url}`);
 
 	const name = req.body.name.trim();
 	const email = req.body.email.trim().toLowerCase();
-	const password = await bcrypt.hash(req.body.password, 8);
+	const salt = await bcrypt.genSalt(15);
+	const password = await bcrypt.hash(req.body.password, salt);
+	const roles = JSON.stringify(req.body.roles);
 
 	if (await Users.findOne({ where: { email: email } })) {
 		return res.status(400).json({ error: "Já existe um usuário com este e-mail." });
@@ -89,14 +106,16 @@ module.exports.addUser = async (req, res) => {
 		name: name,
 		email: email,
 		password: password,
+		roles: roles,
 	})
 		.then((data) => {
 			res.status(201).json({
 				id: data.id,
 				name: data.name,
 				email: data.email,
-				createdAt: data.createdAt,
-				updatedAt: data.updatedAt,
+				roles: JSON.parse(data.roles),
+				createdAt: formatDate(data.createdAt),
+				updatedAt: formatDate(data.updatedAt),
 			});
 		})
 		.catch((err) => {
@@ -116,8 +135,9 @@ module.exports.getUser = async (req, res) => {
 				id: data.id,
 				name: data.name,
 				email: data.email,
-				createdAt: data.createdAt,
-				updatedAt: data.updatedAt,
+				roles: JSON.parse(data.roles),
+				createdAt: formatDate(data.createdAt),
+				updatedAt: formatDate(data.updatedAt),
 			});
 		})
 		.catch((err) => {
@@ -131,7 +151,8 @@ module.exports.getUser = async (req, res) => {
 // {
 // 	 "name": "Mario",
 // 	 "email": "mario@test.com",
-// 	 "password": "123456"
+// 	 "password": "123456",
+// 	 "roles": ["editor", "viewer"]
 // }
 module.exports.updateUser = async (req, res) => {
 	console.log(`Url requisitada (updateUser): ${req.url}`);
@@ -139,6 +160,7 @@ module.exports.updateUser = async (req, res) => {
 	const userId = parseInt(req.params.id);
 	const name = req.body.name.trim();
 	const email = req.body.email.trim().toLowerCase();
+	const roles = JSON.stringify(req.body.roles);
 
 	const user = await Users.findByPk(userId);
 	if (!user) {
@@ -152,10 +174,12 @@ module.exports.updateUser = async (req, res) => {
 	let userData = {
 		name: name,
 		email: email,
+		roles: roles,
 	};
 
 	if (req.body.password !== undefined) {
-		const password = await bcrypt.hash(req.body.password, 8);
+		const salt = await bcrypt.genSalt(15);
+		const password = await bcrypt.hash(req.body.password, salt);
 		userData = {
 			...userData,
 			password: password,
@@ -171,8 +195,9 @@ module.exports.updateUser = async (req, res) => {
 				id: data.id,
 				name: data.name,
 				email: data.email,
-				createdAt: data.createdAt,
-				updatedAt: data.updatedAt,
+				roles: JSON.parse(data.roles),
+				createdAt: formatDate(data.createdAt),
+				updatedAt: formatDate(data.updatedAt),
 			});
 		})
 		.catch((err) => {

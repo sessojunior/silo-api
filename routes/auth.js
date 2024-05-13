@@ -4,28 +4,19 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+const Sequelize = require("sequelize");
+const { Op } = require("sequelize");
+const { sequelize } = require("../config");
+const Users = require("../models/users")(sequelize, Sequelize.DataTypes);
+
 // Routes: /api/auth
 router.post("/", async (req, res) => {
-	const email = req.body.email.trim().toLowerCase() || "";
+	const email = req.body.email.trim() || "";
 	const password = req.body.password || "";
 
-	// Dummy data test
-	const users = [
-		{
-			id: 1,
-			name: "Mario",
-			email: "mario@teste.com",
-			password: "$2b$08$dcnDWiXl3wbftoWmQ.5XyueLzpm.lIDAXW/pYa.T2tCcBb8Ld44Ny",
-			roles: ["admin", "editor", "viewer"],
-			createdAt: "2024-05-07 13:42:14.060 +00:00",
-			updatedAt: "2024-05-07 13:42:14.060 +00:00",
-		},
-	];
-
-	// Check email
-	const user = users.find((user) => user.email === email);
+	const user = await Users.findOne({ where: { email: email } });
 	if (!user) {
-		return res.status(400).json({ error: "E-mail não encontrado." });
+		return res.status(404).json({ error: "Não existe um usuário com este e-mail." });
 	}
 
 	// Check password
@@ -47,7 +38,7 @@ router.post("/", async (req, res) => {
 		return res.status(400).json({ error: "Erro ao obter o token." });
 	}
 
-	return res.status(200).json({ token: token });
+	return res.status(200).json({ token: token, roles: user.roles });
 });
 
 module.exports = router;

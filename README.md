@@ -503,7 +503,7 @@ Para aplicar as alterações a todos os seeders, seria este o comando:
 Para desfazer um seed específico:
 
 ```bash
-> npx sequelize db:seed:undo --seed name-of-seed-as-in-data
+> npx sequelize db:seed:undo --seed 20240510121749-Roles.js
 ```
 
 Para desfazer todos os seeders gerados até o momento:

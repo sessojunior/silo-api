@@ -1,27 +1,23 @@
-const yup = require("yup");
+module.exports.admin = (req, res, next) => {
+	if (!req.user.roles.includes("admin")) {
+		return res.status(403).send({ error: "Acesso negado." });
+	}
 
-// Schema
-const schema = {
-	name: yup.string().trim().required(),
+	next();
 };
 
-module.exports.checkDataRole = async (req, res, next) => {
-	console.log(`Middleware (checkDataRole)`);
-
-	const { name } = req.body;
-	let fields = [];
-
-	// Check fields
-	if (name === undefined || !(await schema.name.isValid(name))) {
-		fields.push("name");
+module.exports.editor = (req, res, next) => {
+	if (!req.user.roles.includes("editor")) {
+		return res.status(403).send({ error: "Acesso negado." });
 	}
 
-	if (fields.length > 0) {
-		return res.status(400).json({
-			error: "Um ou mais dados são inválidos.",
-			invalid_fields: fields,
-		});
+	next();
+};
+
+module.exports.viewer = (req, res, next) => {
+	if (!req.user.roles.includes("viewer")) {
+		return res.status(403).send({ error: "Acesso negado." });
 	}
 
-	return next();
+	next();
 };

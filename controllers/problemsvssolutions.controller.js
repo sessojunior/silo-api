@@ -45,8 +45,6 @@ module.exports.addProblemVsSolution = async (req, res) => {
 				id: data.id,
 				problemId: data.problemId,
 				solutionId: data.solutionId,
-				createdAt: data.createdAt,
-				updatedAt: data.updatedAt,
 			});
 		})
 		.catch((err) => {
