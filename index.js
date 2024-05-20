@@ -10,9 +10,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api", routes);
 
 // Server
-app.listen(port, (err) => {
+const server = app.listen(port, (err) => {
 	if (err) {
 		console.error("Não foi possível conectar ao servidor.", err);
 	}
 	console.log(`Servidor (${environment}) rodando na porta ${port}...`);
 });
+
+module.exports = { app, server };

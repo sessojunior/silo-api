@@ -34,6 +34,8 @@ E também as dependências de desenvolvimento:
 ```bash
 > npm install sequelize-cli --save-dev
 > npm install nodemon --save-dev
+> npm install jest --save-dev
+> npm install supertest --save-dev
 ```
 
 ## Variáveis de ambiente
@@ -436,7 +438,7 @@ O projeto utiliza o [JWT](https://jwt.io/), pois tem a vantagem de transmitir os
 
 Se o usuário possuir autorização (_roles_), ele poderá acessar a rota. As _roles_ permitidas são: _admin_, _editor_ e _viewer_.
 
-Para acessar deve inserir no _Header_ da requisição no _Insomnia_ ou _Postman_ a chave _x-auth-token_ e o valor do token obtido através do login.
+Para acessar deve inserir no _Bearer_ da requisição no _Insomnia_ ou _Postman_ e o _Bearer valor-do-token_ obtido através do login.
 
 ## Criando seeders
 
@@ -445,7 +447,7 @@ Algumas tabelas podem ser já pré-preenchidas, tanto para teste quanto para sit
 A tabela Users já terá algumas informações pré-preenchidas. Para isso vamos popular com alguns dados a tabela:
 
 ```bash
-> npx sequelize-cli seed:generate --name RoUsersles
+> npx sequelize-cli seed:generate --name Users
 ```
 
 Realizar as seguintes alterações no arquivo criado, por exemplo, o arquivo _./seeders/20240510121749-Users.js_:
@@ -493,5 +495,29 @@ Para desfazer todos os seeders gerados até o momento:
 ```
 
 Todas as rotas devem ser adicionadas no arquivo _./routes/index.js_. A rota de login está no arquivo _./routes/auth.js_.
+
+## Rotinas de texte
+
+Para os testes de servidor, usando _supertest_ é preciso alterar a variável de ambiente de execução para _test_ e usar o banco de dados de teste:
+
+```bash
+> npx sequelize-cli db:create --env test
+> npx sequelize-cli db:migrate --env test
+> npx sequelize-cli db:seed:all --env test
+```
+
+O servidor deve ser exportado, adicionar o seguinte no final do arquivo _./index.js_:
+
+```bash
+module.exports = app;
+```
+
+Para executar todas as rotinas de teste usando _jest_ e _supertest_:
+
+```bash
+> npm test
+```
+
+Essa rotina irá executar todos os arquivos com a extensão "_.test.js_".
 
 Estou utilizando o [Insomnia](https://insomnia.rest/download) para testar as rotas, mas utilize o [Postman](https://www.postman.com/downloads/) se você quiser.

@@ -26,6 +26,7 @@ router.post(["/", "/login"], async (req, res) => {
 	}
 
 	// Token
+	// Authorization: Bearer <token>
 	const token = jwt.sign(
 		{
 			id: user.id,

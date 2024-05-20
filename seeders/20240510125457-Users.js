@@ -15,8 +15,8 @@ module.exports = {
 		await queryInterface.bulkInsert(
 			"Users",
 			[
-				{ name: "Mario", email: "mario@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["admin", "editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
-				{ name: "Lucas", email: "lucas@teste.com", password: "viewe$2a$08$5YiRHW/o6.aW.ErN0lBx.uIA1zIl1cQ.S0xOKdlRlsipiMOzAAJFKr", roles: '["editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
+				{ name: "Mario", email: "mario@teste.com", password: "$2b$15$FyQXy7x6mXEw6TJm8P0upOGxXmtA94KEIYoo8zuXwYKsoVwnRZ4tu", roles: '["admin", "editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
+				{ name: "Lucas", email: "lucas@teste.com", password: "$2b$15$FyQXy7x6mXEw6TJm8P0upOGxXmtA94KEIYoo8zuXwYKsoVwnRZ4tu", roles: '["editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
 			],
 			{}
 		);
