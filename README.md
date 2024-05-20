@@ -2,6 +2,8 @@
 
 O **Silo** é um aplicativo para fornecer informações mais rápido e eficiente dos processos e atividades realizadas no supercomputador, monitoradas pelo **Grupo de Produtos e Processos (PP)** do **CPTEC/INPE**.
 
+Neste projeto serão utilizados nomes de variáveis, funções, comentários e classes somente em inglês. A tabulação está sendo feita dois espaços. Obrigatório o uso do plugin _Prettier_ no Visual Studio Code.
+
 A API será desenvolvida para dar suporte ao front-end do projeto.
 
 ![Login](./assets/img/frontend-1.png)
@@ -93,6 +95,7 @@ silo-api/
 │  ├─ auth.js
 │  └─ index.js
 ├─ seeders/
+├─ tests/
 ├─ .env
 ├─ .gitignore
 ├─ config.js
@@ -496,7 +499,7 @@ Para desfazer todos os seeders gerados até o momento:
 
 Todas as rotas devem ser adicionadas no arquivo _./routes/index.js_. A rota de login está no arquivo _./routes/auth.js_.
 
-## Rotinas de texte
+## Rotinas de teste
 
 Para os testes de servidor, usando _supertest_ é preciso alterar a variável de ambiente de execução para _test_ e usar o banco de dados de teste:
 

@@ -1,4 +1,4 @@
-const { app, server } = require("./index.js");
+const { app, server } = require("../index.js");
 const supertest = require("supertest");
 
 let token = undefined;
