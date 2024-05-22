@@ -29,6 +29,7 @@ A API será desenvolvida para dar suporte ao front-end do projeto.
 > npm install sequelize sqlite3 --save
 > npm install bcrypt --save
 > npm install jsonwebtoken --save
+> npm install swagger-ui-express --save
 ```
 
 E também as dependências de desenvolvimento:
@@ -38,6 +39,7 @@ E também as dependências de desenvolvimento:
 > npm install nodemon --save-dev
 > npm install jest --save-dev
 > npm install supertest --save-dev
+> npm install swagger-autogen --save-dev
 ```
 
 ## Variáveis de ambiente
@@ -58,6 +60,8 @@ O projeto está dividido em diretórios e arquivos com responsabilidades diferen
 ```bash
 silo-api/
 ├─ .git
+├─ assets/
+│  └─ img/
 ├─ config/
 │  └─ config.json
 ├─ controllers/
@@ -101,14 +105,25 @@ silo-api/
 ├─ config.js
 ├─ index.js
 ├─ package.json
-└─ README.md
+├─ README.md
+├─ swagger-gen.js
+├─ swagger-gen.json
+└─ swagger.json
 ```
 
-A estrutura abaixo pode ser obtida inserindo o comando _tree_ no terminal do Windows.
+A estrutura abaixo pode ser obtida inserindo o comando _tree_ no terminal do Windows. É o arquivo _./index.js_ que contém os scripts para inicializar o servidor.
 
-**1 - _index.js_**
+## Documentação
 
-O arquivo _index.js_ contém os scripts para inicializar o servidor.
+A documentação completa será feita com a especificação do padrão [OpenAPI 3.1.0](https://spec.openapis.org/oas/v3.1.0), usando o [Swagger](https://swagger.io/). Pode-se editar a documentação através do o [Swagger Editor online](https://editor.swagger.io/). A rota para a documentação está em _/api/docs/_. A documentação deve ser editada no arquivo _swagger.json_.
+
+Para gerar a documentação básica automaticamente com o _Swagger_ irei utilizar o _Swagger Autogen_. Para isso é só executar o arquivo _swagger-gen.js_ que adicionei ao projeto. Esse arquivo pega as rotas e gera a documentação automaticamente para cada uma delas, mas sem detalhes e descrição:
+
+```bash
+> node swagger-gen
+```
+
+Depois é só pegar o que foi gerado, substituir e adaptar no arquivo _swagger.json_.
 
 ## Configuração do banco de dados
 
@@ -429,6 +444,12 @@ const schema = {
 [GET]     /api/problemsvsproblemcategories?problemId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID do problema)
 [GET]     /api/problemsvsproblemcategories?problemCategoryId=1  (Obter dados de um relacionamento de problemas x categoria de problemas pelo ID da solução)
 [DELETE]  /api/problemsvsproblemcategories?problemId=1&problemCategoryId=1  (Apagar um relacionamento de problemas x categoria de problemas pelo ID do problema e da solução)
+```
+
+**Documentação (usando Swagger): /api/docs**
+
+```bash
+[GET]    /api/docs      (Documentação de toda a API)
 ```
 
 ### Autorização com JWT

@@ -1,9 +1,16 @@
 const { app, environment, port } = require("./config");
 const bodyParser = require("body-parser");
 
+// Swagger documentation
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger-gen.json");
+
 // Import routes
 const routes = require("./routes");
 const authRoutes = require("./routes/auth");
+
+// Swagger documentation route
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Setup routes
 app.use("/api/auth", authRoutes);
