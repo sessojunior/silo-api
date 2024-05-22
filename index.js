@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 
 // Swagger documentation
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger-gen.json");
+const swaggerDocument = require("./swagger.json");
 
 // Import routes
 const routes = require("./routes");

@@ -123,7 +123,9 @@ Para gerar a documentação básica automaticamente com o _Swagger_ irei utiliza
 > node swagger-gen
 ```
 
-Depois é só pegar o que foi gerado, substituir e adaptar no arquivo _swagger.json_.
+Depois é só pegar o que foi gerado, substituir e adaptar no arquivo _./swagger.json_.
+
+Caso no projeto adicione novos arquivos de rotas, é preciso adicionar o caminho desse arquivo no array _endpointsFiles_ do arquivo _./swagger-gen.js_, rodar novamente o comando acima e modificar o arquivo _./swagger.json_ com as novas alterações.
 
 ## Configuração do banco de dados
 
