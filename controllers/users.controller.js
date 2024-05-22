@@ -4,8 +4,11 @@ const { sequelize } = require("../config");
 const Users = require("../models/users")(sequelize, Sequelize.DataTypes);
 const bcrypt = require("bcrypt");
 
+// Format date
 function formatDate(date) {
-	return `${date.toLocaleString("pt-BR", { year: "numeric" })}-${date.toLocaleString("pt-BR", { month: "2-digit" })}-${date.toLocaleString("pt-BR", { day: "2-digit" })} ${date.toLocaleString("pt-BR", { hour: "2-digit" })}:${date.toLocaleString("pt-BR", { minute: "2-digit" })}:${date.toLocaleString("pt-BR", { second: "2-digit" })}`;
+	const dataAtual = date.toLocaleDateString("pt-BR").split("/").reverse().join("-");
+	const horaAtual = date.toLocaleTimeString("pt-BR", { hour12: false }).replace(/:/g, ":").replace(",", "");
+	return `${dataAtual} ${horaAtual}`;
 }
 
 // [GET] /users

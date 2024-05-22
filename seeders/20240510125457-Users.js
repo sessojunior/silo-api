@@ -12,11 +12,16 @@ module.exports = {
 		 *   isBetaMember: false
 		 * }], {});
 		 */
+		const salt = await bcrypt.genSalt(15);
+		const password = await bcrypt.hash("123456", salt);
+		const dataAtual = new Date().toLocaleDateString("pt-BR").split("/").reverse().join("-");
+		const horaAtual = new Date().toLocaleTimeString("pt-BR", { hour12: false }).replace(/:/g, ":").replace(",", "");
+		const dataHoraAtual = `${dataAtual} ${horaAtual}`;
 		await queryInterface.bulkInsert(
 			"Users",
 			[
-				{ name: "Mario", email: "mario@teste.com", password: "$2b$15$FyQXy7x6mXEw6TJm8P0upOGxXmtA94KEIYoo8zuXwYKsoVwnRZ4tu", roles: '["admin", "editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
-				{ name: "Lucas", email: "lucas@teste.com", password: "$2b$15$FyQXy7x6mXEw6TJm8P0upOGxXmtA94KEIYoo8zuXwYKsoVwnRZ4tu", roles: '["editor", "viewer"]', createdAt: "2024-05-07 13:42:14.060 +00:00", updatedAt: "2024-05-07 13:42:14.060 +00:00" },
+				{ name: "Mario", email: "mario@teste.com", password: password, roles: '["admin", "editor", "viewer"]', createdAt: dataHoraAtual, updatedAt: dataHoraAtual },
+				{ name: "Lucas", email: "lucas@teste.com", password: password, roles: '["editor", "viewer"]', createdAt: dataHoraAtual, updatedAt: dataHoraAtual },
 			],
 			{}
 		);

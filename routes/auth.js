@@ -25,7 +25,7 @@ router.post(["/", "/login"], async (req, res) => {
 		return res.status(400).json({ error: "Senha inválida." });
 	}
 
-	// Token
+	// Access Token
 	// Authorization: Bearer <token>
 	const token = jwt.sign(
 		{

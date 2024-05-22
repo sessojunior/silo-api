@@ -521,6 +521,6 @@ Para executar todas as rotinas de teste usando _jest_ e _supertest_:
 > npm test
 ```
 
-Essa rotina irá executar todos os arquivos com a extensão "_.test.js_".
+Essa rotina irá executar todos os arquivos com a extensão "_.test.js_" do diretório _./tests_.
 
-Estou utilizando o [Insomnia](https://insomnia.rest/download) para testar as rotas, mas utilize o [Postman](https://www.postman.com/downloads/) se você quiser.
+Estou utilizando o [Insomnia](https://insomnia.rest/download) para testar as rotas, mas utilize o [Postman](https://www.postman.com/downloads/) ou a extensão [Boomerang](https://chromewebstore.google.com/detail/boomerang-soap-rest-clien/eipdnjedkpcnlmmdfdkgfpljanehloah?hl=pt-BR) no Google Chrome se você quiser.

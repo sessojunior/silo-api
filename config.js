@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json({ limit: "256kb" }));
 
 // CORS
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 // JSON, bodyParser
 app.use(bodyParser.json());
