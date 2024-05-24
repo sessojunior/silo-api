@@ -4,7 +4,7 @@ const supertest = require("supertest");
 let token = undefined;
 
 // Auth token test
-describe("Teste de autenticação", () => {
+describe("Autenticação", () => {
 	test("Obter token", async () => {
 		const res = await supertest(app).post("/api/auth").send({
 			email: "mario@teste.com",
@@ -17,7 +17,7 @@ describe("Teste de autenticação", () => {
 	});
 });
 
-describe("Teste de CRUD de usuários", () => {
+describe("Usuários", () => {
 	test("Criar usuário", async () => {
 		const res = await supertest(app)
 			.post("/api/users")
@@ -32,8 +32,33 @@ describe("Teste de CRUD de usuários", () => {
 		expect(res.statusCode).toBe(201);
 	});
 
-	test("Obter lista de usuários", async () => {
+	test("Listar usuários", async () => {
 		const res = await supertest(app).get("/api/users").set("Authorization", `Bearer ${token}`);
+		console.log("error", res.error.text !== undefined ? res.error.text : false);
+		expect(res.statusCode).toBe(200);
+	});
+
+	test("Obter usuário", async () => {
+		const res = await supertest(app).get("/api/users/3").set("Authorization", `Bearer ${token}`);
+		console.log("error", res.error.text !== undefined ? res.error.text : false);
+		expect(res.statusCode).toBe(200);
+	});
+
+	test("Alterar usuário", async () => {
+		const res = await supertest(app)
+			.put("/api/users/3")
+			.set("Authorization", `Bearer ${token}`)
+			.send({
+				name: "Fernandinha",
+				email: "fernandinha@teste.com",
+				roles: ["admin", "editor", "viewer"],
+			});
+		console.log("error", res.error.text !== undefined ? res.error.text : false);
+		expect(res.statusCode).toBe(200);
+	});
+
+	test("Excluir usuário", async () => {
+		const res = await supertest(app).delete("/api/users/3").set("Authorization", `Bearer ${token}`);
 		console.log("error", res.error.text !== undefined ? res.error.text : false);
 		expect(res.statusCode).toBe(200);
 	});
